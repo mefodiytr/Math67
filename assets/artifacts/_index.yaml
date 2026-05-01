@@ -1,0 +1,72 @@
+artifacts:
+  - id: moon-stone-01-fractions
+    name_ru: Лунный Камень Дробей
+    module: 1
+    shape: drop-hemisphere
+    colour: "#F472B6"
+
+  - id: moon-stone-02-primes
+    name_ru: Лунный Камень Простых
+    module: 2
+    shape: octahedron-crystal
+    colour: "#0EA5E9"
+
+  - id: moon-stone-03-signs
+    name_ru: Лунный Камень Знаков
+    module: 3
+    shape: sphere-with-x
+    colour: "#F59E0B"
+
+  - id: moon-stone-04-balance
+    name_ru: Лунный Камень Весов
+    module: 4
+    shape: lotus-weight
+    colour: "#E2E8F0"
+
+  - id: moon-stone-05-stars
+    name_ru: Лунный Камень Звёзд
+    module: 5
+    shape: octogram
+    colour: "#E11D48"
+
+  - id: moon-stone-06-triangles
+    name_ru: Лунный Камень Треугольников
+    module: 6
+    shape: tetrahedron
+    colour: "#F59E0B"
+
+  - id: moon-stone-07-valley
+    name_ru: Лунный Камень Долины
+    module: 7
+    shape: cube-cracked
+    colour: "#10B981"
+
+  - id: moon-stone-08-labyrinth
+    name_ru: Лунный Камень Лабиринта
+    module: 8
+    shape: fork-of-paths
+    colour: "#7C3AED"
+
+  - id: moon-stone-09-observatory
+    name_ru: Лунный Камень Обсерватории
+    module: 9
+    shape: seven-pointed-star
+    colour: "#1E3A8A"
+
+  - id: feather-of-adept
+    name_ru: Перо Адепта
+    module: 10
+    shape: white-feather
+    colour: "#F8FAFC"
+
+  - id: crystal-of-axioms
+    name_ru: Кристалл Аксиом
+    module: 11
+    shape: hexagonal-clear-crystal
+    colour: "#E2E8F0"
+
+  - id: seal-of-adept
+    name_ru: Печать Адепта Девяти Лун
+    module: 12
+    shape: crimson-ring-with-nine-moons
+    colour: "#7F1D1D"

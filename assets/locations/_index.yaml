@@ -1,0 +1,65 @@
+locations:
+  - id: 00-academy-gate
+    name_ru: Зал Адептов
+    module: 0
+    palette: ["#1E3A8A", "#E2E8F0"]
+
+  - id: 01-garden-of-fractions
+    name_ru: Сад Дробей
+    module: 1
+    palette: ["#F472B6", "#FEF3C7"]
+
+  - id: 02-cave-of-primes
+    name_ru: Пещера Простых Чисел
+    module: 2
+    palette: ["#0EA5E9", "#1E3A8A"]
+
+  - id: 03-tower-of-signs
+    name_ru: Башня Знаков
+    module: 3
+    palette: ["#F59E0B", "#0F172A"]
+
+  - id: 04-castle-of-balance
+    name_ru: Замок Весов
+    module: 4
+    palette: ["#E2E8F0", "#1E3A8A"]
+
+  - id: 05-star-map
+    name_ru: Звёздная Карта
+    module: 5
+    palette: ["#E11D48", "#1E3A8A"]
+
+  - id: 06-temple-of-triangles
+    name_ru: Храм Треугольников
+    module: 6
+    palette: ["#F59E0B", "#10B981"]
+
+  - id: 07-valley-of-measures
+    name_ru: Долина Измерений
+    module: 7
+    palette: ["#10B981", "#0EA5E9"]
+
+  - id: 08-labyrinth-lanterns
+    name_ru: Лабиринт Фонариков
+    module: 8
+    palette: ["#FBBF24", "#1E3A8A"]
+
+  - id: 09-night-observatory
+    name_ru: Ночная Обсерватория
+    module: 9
+    palette: ["#1E3A8A", "#E2E8F0"]
+
+  - id: 10-forest-of-stories
+    name_ru: Лес Историй
+    module: 10
+    palette: ["#10B981", "#7F1D1D"]
+
+  - id: 11-hall-of-mirrors
+    name_ru: Зал Девяти Зеркал
+    module: 11
+    palette: ["#E2E8F0", "#1E3A8A"]
+
+  - id: 12-bridge-of-crimson-moon
+    name_ru: Мост Алой Луны
+    module: 12
+    palette: ["#7F1D1D", "#F59E0B"]

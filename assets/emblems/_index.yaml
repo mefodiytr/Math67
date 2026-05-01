@@ -1,0 +1,66 @@
+emblems:
+  - id: stage-00
+    moons_lit: 0
+    extras: []
+    after_module: 0
+
+  - id: stage-01
+    moons_lit: 1
+    extras: []
+    after_module: 1
+
+  - id: stage-02
+    moons_lit: 2
+    extras: []
+    after_module: 2
+
+  - id: stage-03
+    moons_lit: 3
+    extras: []
+    after_module: 3
+
+  - id: stage-04
+    moons_lit: 4
+    extras: []
+    after_module: 4
+
+  - id: stage-05
+    moons_lit: 5
+    extras: []
+    after_module: 5
+
+  - id: stage-06
+    moons_lit: 6
+    extras: []
+    after_module: 6
+
+  - id: stage-07
+    moons_lit: 7
+    extras: []
+    after_module: 7
+
+  - id: stage-08
+    moons_lit: 8
+    extras: []
+    after_module: 8
+
+  - id: stage-09
+    moons_lit: 9
+    extras: []
+    after_module: 9
+
+  - id: stage-10
+    moons_lit: 9
+    extras: [feather]
+    after_module: 10
+
+  - id: stage-11
+    moons_lit: 9
+    extras: [feather, crystal]
+    after_module: 11
+
+  - id: stage-12
+    moons_lit: 9
+    extras: [feather, crystal, crimson-ring]
+    after_module: 12
+    is_final: true

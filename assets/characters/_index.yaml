@@ -1,0 +1,92 @@
+# Index of all 13 canonical characters.
+# Used by tools/render-slides.ts to resolve character ids.
+
+characters:
+  - id: lena
+    name_ru: Лена
+    name_alt: Ленcая
+    role: Главная героиня
+    age: 12
+    appears_in: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    primary_colour: "#1E3A8A"
+
+  - id: tsukiko
+    name_ru: Цукико
+    name_jp: 月子
+    role: Лунная кошка-наставница
+    appears_in: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    primary_colour: "#E2E8F0"
+
+  - id: maneki
+    name_ru: Манэки
+    name_jp: 招き
+    role: Кот-привратник
+    appears_in: [1, 3, 4, 7, 10, 11, 12]
+    primary_colour: "#F59E0B"
+
+  - id: hana
+    name_ru: Хана
+    name_jp: 花
+    role: Фея сакуры
+    appears_in: [1, 6, 7, 8, 10, 12]
+    primary_colour: "#F472B6"
+
+  - id: cinglong
+    name_ru: Цинлун
+    name_zh: 青龍
+    role: Лазурный дракон
+    appears_in: [3, 4, 7, 8, 10, 12]
+    primary_colour: "#0EA5E9"
+
+  - id: seirin
+    name_ru: Сэйрин
+    name_jp: 聖鈴
+    role: Алая фея-колокольчик (English block)
+    appears_in: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    primary_colour: "#E11D48"
+
+  - id: heihime
+    name_ru: Хэйхи
+    name_jp: 黒姫
+    role: Чёрная пантера-инженер
+    appears_in: [1, 7]
+    primary_colour: "#0F172A"
+
+  - id: baihu
+    name_ru: Байху
+    name_zh: 白虎
+    role: Белый тигр-капитан
+    appears_in: [7]
+    primary_colour: "#F8FAFC"
+
+  - id: kuro
+    name_ru: Куро
+    name_jp: 黒
+    role: Кот-детектив
+    appears_in: [8, 11, 12]
+    primary_colour: "#0F172A"
+
+  - id: bakeneko
+    name_ru: Бакэнэко
+    name_jp: 化け猫
+    role: Двухвостая кошка-оборотень
+    appears_in: [8, 9, 11]
+    primary_colour: "#94A3B8"
+
+  - id: sphinx
+    name_ru: Сфинкс Хатор
+    role: Хранитель Загадок (★★★★)
+    appears_in: [8, 11, 12]
+    primary_colour: "#F59E0B"
+
+  - id: kitsune
+    name_ru: Кицунэ
+    role: Девятихвостая лиса-сказительница
+    appears_in: [10, 12]
+    primary_colour: "#F8FAFC"
+
+  - id: tanuki
+    name_ru: Тануки
+    role: Енот-обманщик
+    appears_in: [10]
+    primary_colour: "#92400E"

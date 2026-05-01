@@ -1,0 +1,14 @@
+# Build outputs
+build/
+
+# Node / Bun
+node_modules/
+*.log
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
