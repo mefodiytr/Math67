@@ -1,107 +1,346 @@
 # Математика 6+ / Pre-Advanced Year 7
 
-Углублённая программа после 6 класса: **русская школа + Cambridge Lower Secondary + олимпиадное мышление**.
+> Углублённая программа по математике после 6 класса, объединяющая **русскую школу + Cambridge Lower Secondary + олимпиадное мышление**, оформленная как магический образовательный сюжет в мире **Феликсии — Академии Девяти Лун**.
 
-## Цель курса
+Курс рассчитан на ученицу **Лену** (6+ класс, готовится к сильному 7–8 классу и Cambridge Checkpoint).
 
-Не просто «пройти больше тем», а научить ребёнка:
-- быстро и точно считать;
-- понимать алгебру как язык;
-- решать текстовые задачи разными способами;
-- доказывать в геометрии;
-- работать с графиками и данными;
-- объяснять решение **по-русски и по-английски**;
-- решать нестандартные и олимпиадные задачи.
+---
 
-## Длительность и режим
+## Содержание
 
-- **Срок:** 9–12 месяцев
-- **Занятий в неделю:** 3 × 60–90 минут
-- **Домашние работы:** 2 × 30–45 минут
-- **Контроль:** каждые 4 недели + большие срезы каждые 3 месяца
+- [Что в репозитории](#что-в-репозитории)
+- [Текущий прогресс](#текущий-прогресс)
+- [Структура репозитория](#структура-репозитория)
+- [Карта 13 модулей](#карта-13-модулей)
+- [Сюжетная вселенная](#сюжетная-вселенная)
+- [Уровни задач](#уровни-задач)
+- [Формат одного урока](#формат-одного-урока)
+- [Как пользоваться курсом](#как-пользоваться-курсом)
+- [Единый визуальный стиль](#единый-визуальный-стиль)
+- [Соглашения по именованию](#соглашения-по-именованию)
+- [Добавление новых материалов](#добавление-новых-материалов)
 
-## Уровни сложности внутри каждого модуля
+---
 
-| Уровень | Название | Цель |
-|---------|----------|------|
-| A | Core | Школьная база — без ошибок |
-| B | Strong | Повышенный школьный уровень |
-| C | Advanced | Опережение 7–8 класса |
-| D | Olympiad / Reasoning | Нестандартные задачи и доказательства |
+## Что в репозитории
 
-## Структура курса
+Этот репозиторий содержит **полную программу курса** в виде Markdown-документов, разбитых по типу материала:
 
-| № | Модуль | Файл | Презентация |
-|---|--------|------|-------------|
-| 0 | Диагностика и математический профиль | [modules/00-diagnostics.md](modules/00-diagnostics.md) | [presentations/00-diagnostics-slides.md](presentations/00-diagnostics-slides.md) |
-| 1 | Числа, дроби, проценты, точность | [modules/01-numbers-fractions-percentages.md](modules/01-numbers-fractions-percentages.md) | [presentations/01-numbers-fractions-percentages-slides.md](presentations/01-numbers-fractions-percentages-slides.md) |
-| 2 | Делимость, простые числа, теория чисел | [modules/02-divisibility-primes.md](modules/02-divisibility-primes.md) | [presentations/02-divisibility-primes-slides.md](presentations/02-divisibility-primes-slides.md) |
-| 3 | Алгебраическое мышление и выражения | [modules/03-algebraic-expressions.md](modules/03-algebraic-expressions.md) | [presentations/03-algebraic-expressions-slides.md](presentations/03-algebraic-expressions-slides.md) |
-| 4 | Уравнения, неравенства, текстовые задачи | [modules/04-equations-inequalities.md](modules/04-equations-inequalities.md) | [presentations/04-equations-inequalities-slides.md](presentations/04-equations-inequalities-slides.md) |
-| 5 | Функции, графики, координатная плоскость | [modules/05-functions-graphs.md](modules/05-functions-graphs.md) | [presentations/05-functions-graphs-slides.md](presentations/05-functions-graphs-slides.md) |
-| 6 | Геометрия I: углы, прямые, треугольники | [modules/06-geometry-angles-triangles.md](modules/06-geometry-angles-triangles.md) | [presentations/06-geometry-angles-triangles-slides.md](presentations/06-geometry-angles-triangles-slides.md) |
-| 7 | Геометрия II: площади, окружность, объём | [modules/07-geometry-areas-volumes.md](modules/07-geometry-areas-volumes.md) | [presentations/07-geometry-areas-volumes-slides.md](presentations/07-geometry-areas-volumes-slides.md) |
-| 8 | Комбинаторика и логика | [modules/08-combinatorics-logic.md](modules/08-combinatorics-logic.md) | [presentations/08-combinatorics-logic-slides.md](presentations/08-combinatorics-logic-slides.md) |
-| 9 | Вероятность и статистика | [modules/09-probability-statistics.md](modules/09-probability-statistics.md) | [presentations/09-probability-statistics-slides.md](presentations/09-probability-statistics-slides.md) |
-| 10 | Текстовые задачи повышенной сложности | [modules/10-advanced-word-problems.md](modules/10-advanced-word-problems.md) | [presentations/10-advanced-word-problems-slides.md](presentations/10-advanced-word-problems-slides.md) |
-| 11 | Начала доказательств и математический язык | [modules/11-proofs-reasoning.md](modules/11-proofs-reasoning.md) | [presentations/11-proofs-reasoning-slides.md](presentations/11-proofs-reasoning-slides.md) |
-| 12 | Pre-Algebra → Algebra 1 (мост в 7–8 класс) | [modules/12-pre-algebra-bridge.md](modules/12-pre-algebra-bridge.md) | [presentations/12-pre-algebra-bridge-slides.md](presentations/12-pre-algebra-bridge-slides.md) |
+| Тип материала | Где лежит | Файлов |
+|---|---|---|
+| Описание модулей (что учим) | [`modules/`](modules/) | 13 |
+| Сводная презентация модуля | [`presentations/`](presentations/) | 13 |
+| Сюжетная арка модуля | [`stories/`](stories/) | 6 (готовы) |
+| Уроки (полный конспект) | [`lessons/`](lessons/) | 80 (готовы) |
+| Методичка к уроку | [`teacher-guides/`](teacher-guides/) | 80 (готовы) |
+| Описание слайдов урока | [`lesson-presentations/`](lesson-presentations/) | 80 (готовы) |
+| Готовые **PowerPoint** (.pptx) | [`slides/`](slides/) | 2 (растёт) |
+| Вселенная курса (стилевод) | [`world-bible.md`](world-bible.md) | 1 |
 
-## Годовой план по месяцам
+**Каждый урок** = три парных файла + PPTX:
 
-| Месяц | Тема |
-|-------|------|
-| 1 | Диагностика + дроби + проценты |
-| 2 | Делимость, НОД, НОК, остатки |
-| 3 | Алгебраические выражения |
-| 4 | Уравнения и текстовые задачи |
-| 5 | Графики и координаты |
-| 6 | Геометрия: углы и треугольники |
-| 7 | Площади, окружность, объёмы |
-| 8 | Комбинаторика и логика |
-| 9 | Вероятность и статистика |
-| 10 | Сложные текстовые задачи |
-| 11 | Доказательства и олимпиадные методы |
-| 12 | Pre-Algebra / Algebra 1 |
+```
+lessons/module-00/lesson-01-zal-chisel.md            ← конспект для ученика
+teacher-guides/module-00/lesson-01-guide.md          ← методичка для учителя
+lesson-presentations/module-00/lesson-01-slides.md   ← описание слайдов + промты
+slides/lesson-presentations/module-00/lesson-01-zal-chisel.pptx  ← готовая презентация
+```
 
-## Формат одного занятия (90 минут)
+---
 
-1. **10 мин** — mental math / warm-up
-2. **20 мин** — новая тема
-3. **25 мин** — guided practice
-4. **20 мин** — задачи повышенной сложности
-5. **10 мин** — Cambridge reasoning / English math
-6. **5 мин** — рефлексия
+## Текущий прогресс
 
-## Распределение нагрузки по уровням
+Готово **6 из 13 модулей** курса (Модули 0–5). В работе — Модуль 6.
 
-- **40%** — сильная база (Core)
-- **30%** — углубление 7 класса (Strong)
-- **20%** — Cambridge reasoning (Advanced)
-- **10%** — олимпиадные методы (Olympiad)
+| Модуль | Тема | Уроков | Статус |
+|---|---|---|---|
+| **0** | [Диагностика и математический профиль](modules/00-diagnostics.md) | 5 | ✅ готов |
+| **1** | [Числа, дроби, проценты, точность](modules/01-numbers-fractions-percentages.md) | 15 | ✅ готов |
+| **2** | [Делимость, простые числа, теория чисел](modules/02-divisibility-primes.md) | 12 | ✅ готов |
+| **3** | [Алгебраическое мышление и выражения](modules/03-algebraic-expressions.md) | 15 | ✅ готов |
+| **4** | [Уравнения, неравенства, текстовые задачи](modules/04-equations-inequalities.md) | 18 | ✅ готов |
+| **5** | [Функции, графики, координатная плоскость](modules/05-functions-graphs.md) | 15 | ✅ готов |
+| 6 | [Геометрия I: углы, прямые, треугольники](modules/06-geometry-angles-triangles.md) | ~17 | ⏳ ожидает |
+| 7 | [Геометрия II: площади, окружность, объём](modules/07-geometry-areas-volumes.md) | ~15 | ⏳ ожидает |
+| 8 | [Комбинаторика и логика](modules/08-combinatorics-logic.md) | ~12 | ⏳ ожидает |
+| 9 | [Вероятность и статистика](modules/09-probability-statistics.md) | ~12 | ⏳ ожидает |
+| 10 | [Текстовые задачи повышенной сложности](modules/10-advanced-word-problems.md) | ~17 | ⏳ ожидает |
+| 11 | [Доказательства и математический язык](modules/11-proofs-reasoning.md) | ~12 | ⏳ ожидает |
+| 12 | [Pre-Algebra → Algebra 1 (мост в 7–8)](modules/12-pre-algebra-bridge.md) | ~18 | ⏳ ожидает |
 
-## Итоговая цель через год
+**Всего уроков сейчас:** **80** (из плановых ~183).
 
-К концу курса ученик должен:
-- уверенно решать задачи уровня сильного 7 класса;
-- частично владеть темами 8 класса;
-- читать и понимать Cambridge-style задачи;
-- объяснять решение на английском математическом языке;
-- доказывать простые утверждения;
-- решать базовые олимпиадные задачи.
+---
 
-## Единый визуальный стиль курса
+## Структура репозитория
 
-Все презентации курса используют единый стиль:
+```
+Math67/
+├── README.md                       ← вы здесь
+├── world-bible.md                  ← вселенная и стилевод курса
+│
+├── modules/                        ← описание 13 модулей курса
+│   ├── README.md
+│   ├── 00-diagnostics.md
+│   ├── 01-numbers-fractions-percentages.md
+│   └── ...                         (всего 13)
+│
+├── presentations/                  ← обзорные презентации модулей (MD-описания)
+│   ├── README.md
+│   ├── 00-diagnostics-slides.md
+│   └── ...                         (всего 13)
+│
+├── stories/                        ← сюжетные арки модулей
+│   ├── README.md
+│   ├── arc-00-arrival.md
+│   ├── arc-01-sad-drobei.md
+│   ├── arc-02-peschera-prostykh.md
+│   ├── arc-03-bashnya-znakov.md
+│   ├── arc-04-zamok-vesov.md
+│   └── arc-05-zvezdnaya-karta.md
+│
+├── lessons/                        ← полные конспекты уроков
+│   ├── README.md
+│   ├── module-00/  (5 уроков)
+│   ├── module-01/  (15 уроков)
+│   ├── module-02/  (12 уроков)
+│   ├── module-03/  (15 уроков)
+│   ├── module-04/  (18 уроков)
+│   └── module-05/  (15 уроков)
+│
+├── teacher-guides/                 ← методички для учителя
+│   ├── README.md
+│   └── module-00..05/              (по 1 файлу на каждый урок)
+│
+├── lesson-presentations/           ← описание слайдов каждого урока
+│   ├── README.md                   (с промтами для GPT Image)
+│   └── module-00..05/
+│
+├── slides/                         ← готовые PowerPoint (.pptx)
+│   ├── README.md
+│   ├── presentations/              ← обзорные презы модулей
+│   └── lesson-presentations/       ← презы по урокам
+│
+└── assets/                         ← вспомогательные ресурсы (зарезервировано)
+```
 
-- **Палитра:** глубокий синий `#1E3A8A`, акцент бирюзовый `#0EA5E9`, успех зелёный `#10B981`, акцент-фиолетовый `#8B5CF6`, фон молочный `#F8FAFC`, тёмный текст `#0F172A`.
-- **Типографика:** заголовки — Inter Bold / Manrope; основной текст — Inter Regular; формулы — KaTeX / Computer Modern.
-- **Иконки:** outline-стиль, тонкие линии 2px, скруглённые углы.
-- **Иллюстрации:** изометрия, минималистичная геометрия, мягкие тени, без фотореализма.
-- **Инфографика:** flowchart, схемы, диаграммы Венна, числовые прямые, координатные сетки.
-- **Тон изображений:** дружелюбный, академичный, без перегруженности.
-- **Соотношение сторон:** 16:9 для слайдов, 1:1 для иконок.
+Каждая папка имеет свой `README.md` с детальной навигацией.
 
-Стандартный «префикс стиля» для всех промтов GPT Image:
+---
 
-> *Modern educational illustration, 16:9, flat geometric style with subtle isometric depth, soft shadows, clean vector look, palette: deep blue #1E3A8A, teal #0EA5E9, mint green #10B981, violet #8B5CF6, off-white background #F8FAFC, thin 2px outlines, rounded corners, no text unless specified, friendly academic tone, suitable for advanced middle-school math curriculum.*
+## Карта 13 модулей
+
+### Модули 0–5 (готовы)
+
+| # | Тема | Уроки | Методички | Слайды-MD | Сюжет |
+|---|------|-------|-----------|-----------|-------|
+| 0 | [Диагностика](modules/00-diagnostics.md) | [📖](lessons/module-00/) | [👩‍🏫](teacher-guides/module-00/) | [🎨](lesson-presentations/module-00/) | [📜](stories/arc-00-arrival.md) |
+| 1 | [Дроби и проценты](modules/01-numbers-fractions-percentages.md) | [📖](lessons/module-01/) | [👩‍🏫](teacher-guides/module-01/) | [🎨](lesson-presentations/module-01/) | [📜](stories/arc-01-sad-drobei.md) |
+| 2 | [Простые числа](modules/02-divisibility-primes.md) | [📖](lessons/module-02/) | [👩‍🏫](teacher-guides/module-02/) | [🎨](lesson-presentations/module-02/) | [📜](stories/arc-02-peschera-prostykh.md) |
+| 3 | [Алгебра](modules/03-algebraic-expressions.md) | [📖](lessons/module-03/) | [👩‍🏫](teacher-guides/module-03/) | [🎨](lesson-presentations/module-03/) | [📜](stories/arc-03-bashnya-znakov.md) |
+| 4 | [Уравнения](modules/04-equations-inequalities.md) | [📖](lessons/module-04/) | [👩‍🏫](teacher-guides/module-04/) | [🎨](lesson-presentations/module-04/) | [📜](stories/arc-04-zamok-vesov.md) |
+| 5 | [Графики](modules/05-functions-graphs.md) | [📖](lessons/module-05/) | [👩‍🏫](teacher-guides/module-05/) | [🎨](lesson-presentations/module-05/) | [📜](stories/arc-05-zvezdnaya-karta.md) |
+
+### Модули 6–12 (план)
+
+| # | Тема | Описание | План |
+|---|------|----------|------|
+| 6 | Геометрия I | [modules/06](modules/06-geometry-angles-triangles.md) | углы, треугольники, доказательства |
+| 7 | Геометрия II | [modules/07](modules/07-geometry-areas-volumes.md) | площади, окружность, объём |
+| 8 | Комбинаторика | [modules/08](modules/08-combinatorics-logic.md) | перебор, дерево, Дирихле |
+| 9 | Вероятность | [modules/09](modules/09-probability-statistics.md) | среднее, медиана, P(A) |
+| 10 | Большие текстовые | [modules/10](modules/10-advanced-word-problems.md) | смеси, движение, работа |
+| 11 | Доказательства | [modules/11](modules/11-proofs-reasoning.md) | proof, контрпример, инвариант |
+| 12 | Мост в 7–8 | [modules/12](modules/12-pre-algebra-bridge.md) | системы, парабола, факторизация |
+
+---
+
+## Сюжетная вселенная
+
+Курс встроен в магический мир **Феликсии — Академии Девяти Лун**.
+
+- **Лена** — главная героиня, 12-летняя адептка.
+- **Сюжет:** Лена должна собрать **9 Лунных Камней**, по одному за каждый большой блок курса (Модули 1–9). К концу года её Печать Адепта горит всеми девятью лунами.
+- **Хранители:**
+  - **Цукико** (白猫) — лунная белая кошка-наставница.
+  - **Манэки** (招き猫) — рыжий кот-привратник.
+  - **Хэйхи** (黒姫) — чёрная пантера-инженер.
+  - **Цинлун** (青龍) — лазурный дракон-учитель алгебры.
+  - **Сэйрин** — алая фея с колокольчиком (графики).
+  - **Хана** — розовая фея сакуры (геометрия).
+  - **Куро** (黒) — чёрный кот-детектив (логика, доказательства).
+  - **Бакэнэко** (化け猫) — серебряный кот-оборотень с двумя хвостами (полнолуние, парадоксы).
+  - **Сфинкс Хатор** — хранитель олимпиадных загадок.
+  - **Байху** (白虎) — белый тигр-стратег (движение).
+
+Полный паспорт мира, персонажей, палитры и тона диалогов — в [`world-bible.md`](world-bible.md).
+
+### Сюжетные арки по модулям
+
+| Арка | Где | Что получает Лена |
+|------|-----|-------------------|
+| Модуль 0 — Прибытие | [stories/arc-00](stories/arc-00-arrival.md) | Печать Адепта (карта навыков) |
+| Модуль 1 — Сад Дробей | [stories/arc-01](stories/arc-01-sad-drobei.md) | Лунный Камень Дробей (1/9) |
+| Модуль 2 — Пещера Простых | [stories/arc-02](stories/arc-02-peschera-prostykh.md) | Лунный Камень Простых (2/9) |
+| Модуль 3 — Башня Знаков | [stories/arc-03](stories/arc-03-bashnya-znakov.md) | Лунный Камень Знаков (3/9) |
+| Модуль 4 — Замок Весов | [stories/arc-04](stories/arc-04-zamok-vesov.md) | Лунный Камень Весов (4/9) |
+| Модуль 5 — Звёздная Карта | [stories/arc-05](stories/arc-05-zvezdnaya-karta.md) | Лунный Камень Карты (5/9) |
+
+---
+
+## Уровни задач
+
+В каждом уроке задачи маркируются звёздами:
+
+| Уровень | Маркер | Что это |
+|---------|--------|---------|
+| Core | ★ | базовый школьный, без ошибок |
+| Strong | ★★ | повышенный школьный (русский 6–7 класс) |
+| Advanced | ★★★ | опережение, начало 7–8 класса |
+| Sphinx Challenge | ★★★★ | олимпиадный, нестандартный |
+
+Распределение по нагрузке: **40% Core, 30% Strong, 20% Advanced, 10% Sphinx**.
+
+---
+
+## Формат одного урока
+
+Каждый урок построен по единому шаблону:
+
+1. **Сюжет** (2–3 абзаца) — где Лена, какая загадка, кто из хранителей рядом.
+2. **Что узнаем сегодня** — список целей.
+3. **Объяснение** — теория с метафорой из мира.
+4. **Пример** — разбор от лица персонажа.
+5. **Core ★** — 6–10 базовых задач.
+6. **Strong ★★** — 8–12 сильных.
+7. **Advanced ★★★** — 4–6 опережающих.
+8. **Sphinx Challenge ★★★★** — 1–2 олимпиадных.
+9. **English with the Bell Fairy 🔔** — Cambridge-блок: словарь + 3-частная задача + **перевод для учителя** + методическая заметка.
+10. **Кошачий факт / Миф дня** — 60–100 слов японско-китайско-кошачьего фольклора.
+11. **Рефлексия** — 3 вопроса.
+12. **Домашний квест 🌙** — 4–5 задач + бонус-квест.
+13. **Ответы под спойлером**.
+
+К каждому уроку идёт **методичка** (`teacher-guides/`) с таймингом 90 минут, диагностическими шкалами 1–5, типичными ошибками, разборами и идеями для упрощения / расширения.
+
+---
+
+## Как пользоваться курсом
+
+### Учитель / тьютор
+
+1. Открой [`modules/`](modules/) и выбери текущий модуль.
+2. Прочитай арку в [`stories/`](stories/) — это «крючок» для ребёнка.
+3. На каждом занятии:
+ - Открой соответствующий **lesson-XX.md** в [`lessons/`](lessons/).
+ - Параллельно держи **lesson-XX-guide.md** из [`teacher-guides/`](teacher-guides/).
+ - Покажи презентацию: либо [`slides/`](slides/) (готовый .pptx), либо собери по описанию из [`lesson-presentations/`](lesson-presentations/).
+4. После урока заполни **дневник учителя** из методички (диагностические шкалы 1–5).
+5. После каждого модуля — обнови **карту навыков** в финальном уроке модуля.
+
+### Ученица (Лена)
+
+1. Сюжетный hook читает учитель в начале урока.
+2. Решает Core → Strong → Advanced последовательно.
+3. Sphinx Challenge — по желанию (олимпиада).
+4. Английский блок — обязательно.
+5. **Бонус-квест** дома — рисунок, мини-эссе, ребус.
+
+### Родитель
+
+- Через каждые 3 месяца — большой mixed test (см. [`modules/`](modules/)).
+- Карту навыков ученицы учитель обновляет **после каждого финального урока модуля** (см. методички финальных уроков).
+
+---
+
+## Единый визуальный стиль
+
+Все презентации курса — в эстетике **Sailor Moon × Studio Ghibli × японско-китайская мифология × кошачьи**.
+
+### Палитра
+
+| Цвет | HEX | Применение |
+|------|-----|------------|
+| Глубокий синий | `#1E3A8A` | основной фон, ночь |
+| Серебро луны | `#E2E8F0` | Цукико, артефакты |
+| Бирюза моря | `#0EA5E9` | акцент, формулы |
+| Алый колокольчик | `#E11D48` | Сэйрин |
+| Лотос-розовый | `#F472B6` | Хана |
+| Императорский золотой | `#F59E0B` | Сфинкс |
+| Лес-зелёный | `#10B981` | Цинлун |
+| Уголь-чёрный | `#0F172A` | Куро, ночные сцены |
+| Молочный фон | `#F8FAFC` | страницы слайдов |
+
+### Графика
+
+- мягкий cell-shading,
+- акварельные текстуры,
+- штрих кистью (sumi-e),
+- **нет** пёрышек, ангелочков, сердечек.
+
+Полный стилевод и **префикс промта** для GPT Image — в [`world-bible.md`](world-bible.md).
+
+---
+
+## Соглашения по именованию
+
+### Модули
+
+`modules/NN-slug.md` — где `NN` — номер от `00` до `12`, `slug` — английский kebab-case описатель темы.
+
+### Уроки
+
+`lessons/module-NN/lesson-MM-slug.md` — где `NN` — номер модуля, `MM` — номер урока внутри модуля (`01..18`), `slug` — транслитерированный slug темы урока (например, `zal-chisel`, `sad-drobei`, `bashnya-znakov`).
+
+### Методички
+
+`teacher-guides/module-NN/lesson-MM-guide.md`.
+
+### Описания слайдов
+
+`lesson-presentations/module-NN/lesson-MM-slides.md`.
+
+### Готовые PPTX
+
+`slides/lesson-presentations/module-NN/lesson-MM-slug.pptx` — **зеркальный** путь к описанию слайдов.
+
+### Сюжетные арки
+
+`stories/arc-NN-slug.md`.
+
+---
+
+## Добавление новых материалов
+
+### Новый урок
+
+1. Создай файл `lessons/module-NN/lesson-MM-slug.md` по шаблону существующих.
+2. Создай парную методичку `teacher-guides/module-NN/lesson-MM-guide.md`.
+3. Создай описание слайдов `lesson-presentations/module-NN/lesson-MM-slides.md` с промтами для GPT Image.
+4. Когда соберёшь .pptx — положи в `slides/lesson-presentations/module-NN/lesson-MM-slug.pptx`.
+5. Закоммить в одну группу:
+
+```bash
+git add lessons/module-NN/ teacher-guides/module-NN/ lesson-presentations/module-NN/
+git commit -m "Add Module NN Lesson MM: <название>"
+```
+
+### Новый модуль
+
+1. Создай арку `stories/arc-NN-slug.md` с описанием локаций и хранителей.
+2. Создай папки `lessons/module-NN/`, `teacher-guides/module-NN/`, `lesson-presentations/module-NN/`.
+3. Постепенно заполняй уроками.
+4. Финальный урок (`lesson-XX-final.md`) включает сводное испытание + церемонию Лунного Камня.
+
+### Новая готовая презентация
+
+1. Положи .pptx в зеркальный путь к `lesson-presentations/...-slides.md`.
+2. См. подробности в [`slides/README.md`](slides/README.md).
+
+---
+
+## Лицензия и использование
+
+Курс разработан для конкретной ученицы (Лена) и не предполагает распространения. Любые персонажи, текстовые описания и схемы — авторские. Японско-китайские мифологические имена использованы в духе уважения и культурной точности.
+
+> *«Шесть Лун горят. Завтра — Храм Треугольников.»* 🌙
