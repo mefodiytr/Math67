@@ -243,6 +243,13 @@ if (lesson.sphinx?.expectedAnswer) totalCheckable++;
         </p>
       </div>
       <div class="flex flex-wrap gap-3">
+        <a
+          href={`/teacher/lesson/${lesson.moduleId}/${lesson.lessonId}`}
+          class="btn"
+          title="Открыть страницу для учителя — дневник и шкалы"
+        >
+          👩‍🏫 Дневник учителя
+        </a>
         <button
           id="mark-lesson-btn"
           class="btn"

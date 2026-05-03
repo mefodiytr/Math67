@@ -1,0 +1,154 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { MODULES } from "@/data/world.ts";
+---
+
+<BaseLayout title="Сводный отчёт">
+  <nav class="mb-4 flex items-center gap-2 text-sm text-9m-fog">
+    <a href="/teacher" class="text-9m-fog no-underline hover:text-9m-silver">
+      Кабинет учителя
+    </a>
+    <span aria-hidden="true">›</span>
+    <span class="text-9m-silver">Сводный отчёт</span>
+  </nav>
+
+  <header class="mb-8 space-y-2">
+    <p class="text-sm uppercase tracking-[0.3em] text-9m-fog">Отчёт</p>
+    <h1 class="font-display text-4xl font-medium text-9m-silver">
+      Сводный отчёт по журналу
+    </h1>
+    <p class="text-9m-fog">
+      Все записи дневника, средние по модулям, заметки.
+      Кнопка «📥 CSV» — выгрузка для печати.
+    </p>
+  </header>
+
+  <section class="paper mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 class="section-heading m-0">По модулям</h2>
+      <button id="export-csv-btn" class="btn">📥 CSV</button>
+    </div>
+    <div class="mt-4 grid gap-2" id="modules-summary">
+      {
+        MODULES.map((m) => (
+          <div
+            class="task-card flex items-center justify-between gap-3"
+            data-module={m.id}
+          >
+            <div class="flex items-center gap-3">
+              <span
+                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-medium text-9m-charcoal"
+                style={`background-color: ${m.primaryColour}`}
+              >
+                {m.id}
+              </span>
+              <span class="text-9m-silver">{m.shortTitle}</span>
+            </div>
+            <div class="flex items-center gap-4 text-sm">
+              <span class="text-9m-fog" data-module-count>—</span>
+              <span class="font-display text-9m-gold" data-module-avg>—</span>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="paper">
+    <h2 class="section-heading mb-4">Заметки по урокам</h2>
+    <div id="notes-list" class="space-y-3">
+      <p class="text-sm text-9m-fog">Загружается…</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { MODULES } from "@/data/world.ts";
+  import { loadJournal, averageRating, downloadJournalCSV } from "@lib/teacher.ts";
+
+  function refresh(): void {
+    const j = loadJournal();
+    const entries = Object.entries(j.diaries);
+
+    // Группировка по модулям
+    const byModule: Record<string, { count: number; avgs: number[] }> = {};
+    for (const [k, e] of entries) {
+      const [mid] = k.split(".");
+      if (!byModule[mid]) byModule[mid] = { count: 0, avgs: [] };
+      byModule[mid].count++;
+      const avg = averageRating(e);
+      if (avg !== null) byModule[mid].avgs.push(avg);
+    }
+
+    document.querySelectorAll<HTMLElement>("[data-module]").forEach((el) => {
+      const mid = el.dataset.module;
+      if (!mid) return;
+      const stats = byModule[mid];
+      const countEl = el.querySelector<HTMLElement>("[data-module-count]");
+      const avgEl = el.querySelector<HTMLElement>("[data-module-avg]");
+      if (stats && stats.count > 0) {
+        if (countEl) countEl.textContent = `${stats.count} запис${stats.count === 1 ? "ь" : stats.count < 5 ? "и" : "ей"}`;
+        if (avgEl) {
+          if (stats.avgs.length > 0) {
+            const avg = stats.avgs.reduce((s, v) => s + v, 0) / stats.avgs.length;
+            avgEl.textContent = `★ ${avg.toFixed(2)}`;
+          } else {
+            avgEl.textContent = "—";
+          }
+        }
+      } else {
+        if (countEl) countEl.textContent = "—";
+        if (avgEl) avgEl.textContent = "—";
+      }
+    });
+
+    // Список заметок
+    const notes = entries
+      .filter(([, e]) => e.note && e.note.trim().length > 0)
+      .sort((a, b) => {
+        const [ma, la] = a[0].split(".").map(Number);
+        const [mb, lb] = b[0].split(".").map(Number);
+        if (ma !== mb) return ma - mb;
+        return la - lb;
+      });
+
+    const list = document.getElementById("notes-list");
+    if (!list) return;
+    if (notes.length === 0) {
+      list.innerHTML =
+        '<p class="text-sm text-9m-fog">Заметок пока нет. Они появятся, когда заполнишь дневник к уроку.</p>';
+      return;
+    }
+    list.innerHTML = notes
+      .map(([k, e]) => {
+        const [mid, lid] = k.split(".");
+        const mod = MODULES.find((m) => m.id === parseInt(mid, 10));
+        const date = new Date(e.savedAt).toLocaleDateString("ru-RU");
+        const avg = averageRating(e);
+        const noteEsc = e.note
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+        return `
+          <article class="rounded-md border border-9m-silver/10 bg-9m-bg-deep/40 p-4">
+            <div class="mb-2 flex items-center justify-between gap-2 text-xs text-9m-fog">
+              <a href="/teacher/lesson/${mid}/${lid}" class="text-9m-teal no-underline hover:underline">
+                Урок ${k} · ${mod?.shortTitle ?? ""}
+              </a>
+              <span>${date}${avg !== null ? ` · ★ ${avg.toFixed(2)}` : ""}</span>
+            </div>
+            <p class="whitespace-pre-wrap text-sm text-9m-silver/85">${noteEsc}</p>
+          </article>
+        `;
+      })
+      .join("");
+  }
+
+  refresh();
+  window.addEventListener("focus", refresh);
+  window.addEventListener("storage", refresh);
+
+  document.getElementById("export-csv-btn")?.addEventListener("click", () => {
+    downloadJournalCSV();
+  });
+</script>

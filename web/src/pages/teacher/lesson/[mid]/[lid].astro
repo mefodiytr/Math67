@@ -1,0 +1,188 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import DiaryForm from "@components/teacher/DiaryForm.tsx";
+import Markdown from "@components/lesson/Markdown.astro";
+import CharacterAvatar from "@components/world/CharacterAvatar.astro";
+import { MODULES, getModule, getCharacter } from "@/data/world.ts";
+import { loadModule, loadLesson } from "@/lib/parse-lesson.ts";
+import { loadGuide, defaultThemes } from "@/lib/parse-guide.ts";
+
+export function getStaticPaths() {
+  const paths: Array<{
+    params: { mid: string; lid: string };
+    props: { lessonRef: { moduleId: number; lessonId: number } };
+  }> = [];
+
+  for (const m of MODULES) {
+    const lessons = loadModule(m.id);
+    for (const l of lessons) {
+      paths.push({
+        params: { mid: String(m.id), lid: String(l.lessonId) },
+        props: { lessonRef: { moduleId: m.id, lessonId: l.lessonId } },
+      });
+    }
+  }
+  return paths;
+}
+
+const { lessonRef } = Astro.props as {
+  lessonRef: { moduleId: number; lessonId: number };
+};
+const lesson = loadLesson(lessonRef.moduleId, lessonRef.lessonId);
+const guide = loadGuide(lessonRef.moduleId, lessonRef.lessonId);
+if (!lesson) {
+  return Astro.redirect("/teacher");
+}
+const mod = getModule(lesson.moduleId);
+const curator = lesson.curator ? getCharacter(lesson.curator) : undefined;
+
+// Темы для шкал — из методички, иначе fallback
+const themes = guide?.themes && guide.themes.length > 0 ? guide.themes : defaultThemes();
+
+// Сосседние уроки (для быстрого перехода)
+const prevId = lesson.lessonId > 1 ? lesson.lessonId - 1 : null;
+const nextId =
+  mod && lesson.lessonId < mod.lessonsCount ? lesson.lessonId + 1 : null;
+---
+
+<BaseLayout title={`Дневник · ${lesson.shortTitle}`}>
+  <nav class="mb-4 flex flex-wrap items-center gap-2 text-sm text-9m-fog">
+    <a href="/teacher" class="text-9m-fog no-underline hover:text-9m-silver">
+      Кабинет учителя
+    </a>
+    <span aria-hidden="true">›</span>
+    <a
+      href={`/module/${lesson.moduleId}`}
+      class="text-9m-fog no-underline hover:text-9m-silver"
+    >
+      {mod?.shortTitle}
+    </a>
+    <span aria-hidden="true">›</span>
+    <span class="text-9m-silver">Урок {lesson.moduleId}.{lesson.lessonId}</span>
+  </nav>
+
+  {/* Заголовок */}
+  <header class="mb-6 space-y-3">
+    <div class="h-1 w-24 rounded-full" style={`background-color: ${mod?.primaryColour ?? "#E2E8F0"}`}></div>
+    <p class="text-xs uppercase tracking-[0.3em] text-9m-fog">
+      Модуль {lesson.moduleId} · Урок {lesson.lessonId} · режим учителя
+    </p>
+    <h1 class="font-display text-3xl font-medium text-9m-silver md:text-4xl">
+      {lesson.shortTitle}
+    </h1>
+    <div class="flex flex-wrap items-center gap-3 text-sm text-9m-fog">
+      {lesson.duration && <span>⏱ {lesson.duration} мин</span>}
+      {curator && (
+        <span class="flex items-center gap-2">
+          <CharacterAvatar id={curator.id} size="sm" />
+          {curator.nameRu}
+        </span>
+      )}
+      <a
+        href={`/lesson/${lesson.moduleId}/${lesson.lessonId}`}
+        class="text-9m-teal underline-offset-2 hover:underline"
+      >
+        Открыть урок ↗
+      </a>
+    </div>
+  </header>
+
+  <div class="grid gap-6 lg:grid-cols-2">
+    {/* Дневник: шкалы + заметка */}
+    <section class="paper space-y-4">
+      <h2 class="section-heading">Дневник прогресса</h2>
+      <p class="text-sm text-9m-fog">
+        Поставь оценки 1–5 по темам и оставь заметку.
+      </p>
+      <DiaryForm
+        client:load
+        moduleId={lesson.moduleId}
+        lessonId={lesson.lessonId}
+        themes={themes}
+      />
+    </section>
+
+    {/* Подсказки из методички */}
+    <section class="space-y-4">
+      {
+        guide?.timing && (
+          <div class="paper">
+            <h2 class="section-heading">Тайминг (90 мин)</h2>
+            <Markdown text={guide.timing} />
+          </div>
+        )
+      }
+
+      {
+        guide?.goals && (
+          <div class="paper">
+            <h2 class="section-heading">Цели</h2>
+            <Markdown text={guide.goals} />
+          </div>
+        )
+      }
+
+      {
+        guide?.pitfalls && (
+          <div class="paper">
+            <h2 class="section-heading">⚠ Где «ломается»</h2>
+            <Markdown text={guide.pitfalls} />
+          </div>
+        )
+      }
+
+      {
+        guide?.solutions && (
+          <details class="paper">
+            <summary class="cursor-pointer select-none font-display text-lg text-9m-fog hover:text-9m-silver">
+              🗝 Решения задач
+            </summary>
+            <div class="mt-4">
+              <Markdown text={guide.solutions} />
+            </div>
+          </details>
+        )
+      }
+
+      {
+        !guide && (
+          <div class="paper">
+            <p class="text-sm text-9m-fog">
+              Методичка для этого урока не найдена. Можно вести дневник
+              без неё — добавь свои темы вручную.
+            </p>
+          </div>
+        )
+      }
+    </section>
+  </div>
+
+  {/* Навигация */}
+  <nav class="mt-10 flex items-center justify-between gap-3 border-t border-9m-silver/10 pt-6">
+    {
+      prevId ? (
+        <a
+          href={`/teacher/lesson/${lesson.moduleId}/${prevId}`}
+          class="btn"
+        >
+          ← Урок {prevId}
+        </a>
+      ) : (
+        <span />
+      )
+    }
+    <a href="/teacher" class="btn">📋 Кабинет</a>
+    {
+      nextId ? (
+        <a
+          href={`/teacher/lesson/${lesson.moduleId}/${nextId}`}
+          class="btn btn-primary"
+        >
+          Урок {nextId} →
+        </a>
+      ) : (
+        <span />
+      )
+    }
+  </nav>
+</BaseLayout>

@@ -1,5 +1,7 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
+import { MODULES } from "@/data/world.ts";
+import { loadModule } from "@/lib/parse-lesson.ts";
 ---
 
 <BaseLayout title="Кабинет учителя">
@@ -7,18 +9,172 @@ import BaseLayout from "@layouts/BaseLayout.astro";
     <p class="text-sm uppercase tracking-[0.3em] text-9m-fog">Учитель</p>
     <h1 class="font-display text-4xl font-medium text-9m-silver">Кабинет</h1>
     <p class="text-9m-fog">
-      Дневник прогресса, шкалы 1–5, заметки. В Phase 5 здесь будет полный workspace.
+      Дневник прогресса по урокам. Шкалы 1–5 + заметки. Всё хранится в этом
+      браузере (без бэкенда). Экспорт в CSV — внизу.
     </p>
   </header>
 
+  <section class="paper mb-6">
+    <h2 class="section-heading">Сводка</h2>
+    <div class="grid gap-4 sm:grid-cols-3">
+      <div class="task-card text-center">
+        <p class="font-display text-3xl text-9m-gold" id="diaries-count">0</p>
+        <p class="text-xs text-9m-fog">записей в дневнике</p>
+      </div>
+      <div class="task-card text-center">
+        <p class="font-display text-3xl text-9m-teal" id="avg-rating">—</p>
+        <p class="text-xs text-9m-fog">средний балл</p>
+      </div>
+      <div class="task-card text-center">
+        <p class="font-display text-3xl text-9m-silver" id="last-update">—</p>
+        <p class="text-xs text-9m-fog">последняя запись</p>
+      </div>
+    </div>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <a href="/teacher/report" class="btn">📊 Сводный отчёт</a>
+      <button id="export-csv-btn" class="btn">📥 Экспорт в CSV</button>
+    </div>
+  </section>
+
   <section class="paper">
-    <h2 class="section-heading">Что будет здесь</h2>
-    <ul class="space-y-2 text-9m-silver/85">
-      <li>📋 Дневник: после каждого урока — шкалы 1–5 по темам.</li>
-      <li>📝 Заметки к уроку (что ученица поняла, что нет).</li>
-      <li>📊 История прогресса по модулям.</li>
-      <li>📥 Экспорт в CSV / PDF.</li>
-      <li>🌙 Кнопка «отметить модуль завершённым» — загорается следующая Луна на эмблеме.</li>
-    </ul>
+    <h2 class="section-heading mb-6">Уроки по модулям</h2>
+    <div class="space-y-2" id="module-list">
+      {
+        MODULES.map((m) => {
+          const lessons = loadModule(m.id);
+          return (
+            <details class="group rounded-md border border-9m-silver/10 bg-9m-bg-deep/50 transition-all open:bg-9m-bg-deep/70">
+              <summary
+                class="flex cursor-pointer items-center justify-between gap-3 rounded-md p-3 hover:bg-9m-silver/5"
+                data-module={m.id}
+              >
+                <div class="flex items-center gap-3">
+                  <span
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-display text-sm font-medium text-9m-charcoal"
+                    style={`background-color: ${m.primaryColour}`}
+                  >
+                    {m.id}
+                  </span>
+                  <div>
+                    <h3 class="font-display text-base text-9m-silver">
+                      {m.shortTitle}
+                    </h3>
+                    <p class="text-xs text-9m-fog">
+                      {lessons.length} уроков
+                    </p>
+                  </div>
+                </div>
+                <span
+                  class="text-sm text-9m-fog"
+                  data-module-status={m.id}
+                >
+                  …
+                </span>
+              </summary>
+              <ol class="m-0 space-y-1 p-3 pt-0">
+                {lessons.map((l) => (
+                  <li>
+                    <a
+                      href={`/teacher/lesson/${l.moduleId}/${l.lessonId}`}
+                      class="flex items-center justify-between gap-3 rounded p-2 text-sm no-underline hover:bg-9m-silver/5"
+                      data-lesson-key={`${l.moduleId}.${l.lessonId}`}
+                    >
+                      <span class="text-9m-silver/85">
+                        <span class="text-9m-fog">{l.lessonId}.</span>{" "}
+                        {l.shortTitle}
+                      </span>
+                      <span class="text-xs text-9m-fog" data-lesson-status>
+                        —
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </details>
+          );
+        })
+      }
+    </div>
   </section>
 </BaseLayout>
+
+<script>
+  import {
+    loadJournal,
+    averageRating,
+    downloadJournalCSV,
+  } from "@lib/teacher.ts";
+
+  function refresh(): void {
+    const j = loadJournal();
+    const entries = Object.entries(j.diaries);
+    const count = entries.length;
+
+    // Сводка
+    const countEl = document.getElementById("diaries-count");
+    if (countEl) countEl.textContent = String(count);
+
+    const avgEl = document.getElementById("avg-rating");
+    if (avgEl) {
+      if (count === 0) avgEl.textContent = "—";
+      else {
+        const allAvgs = entries
+          .map(([, e]) => averageRating(e))
+          .filter((v): v is number => v !== null);
+        if (allAvgs.length === 0) avgEl.textContent = "—";
+        else {
+          const overall = allAvgs.reduce((s, v) => s + v, 0) / allAvgs.length;
+          avgEl.textContent = overall.toFixed(2);
+        }
+      }
+    }
+
+    const lastEl = document.getElementById("last-update");
+    if (lastEl) {
+      if (count === 0) lastEl.textContent = "—";
+      else {
+        const sorted = [...entries].sort(
+          (a, b) => new Date(b[1].savedAt).getTime() - new Date(a[1].savedAt).getTime()
+        );
+        const d = new Date(sorted[0][1].savedAt);
+        lastEl.textContent = d.toLocaleDateString("ru-RU");
+      }
+    }
+
+    // По модулям: сколько уроков с диариями
+    const byModule: Record<string, number> = {};
+    for (const [k] of entries) {
+      const [mid] = k.split(".");
+      byModule[mid] = (byModule[mid] ?? 0) + 1;
+    }
+    document.querySelectorAll<HTMLElement>("[data-module-status]").forEach((el) => {
+      const mid = el.dataset.moduleStatus;
+      if (!mid) return;
+      const c = byModule[mid] ?? 0;
+      el.textContent = c > 0 ? `${c} запис${c === 1 ? "ь" : c < 5 ? "и" : "ей"}` : "—";
+      if (c > 0) el.classList.add("text-9m-gold");
+    });
+
+    // По урокам: статус
+    document.querySelectorAll<HTMLElement>("[data-lesson-key]").forEach((el) => {
+      const key = (el as HTMLAnchorElement).dataset.lessonKey;
+      if (!key) return;
+      const status = el.querySelector<HTMLElement>("[data-lesson-status]");
+      if (!status) return;
+      const e = j.diaries[key];
+      if (e) {
+        const avg = averageRating(e);
+        status.textContent = avg !== null ? `★ ${avg.toFixed(1)}` : "✓";
+        status.classList.add("text-9m-gold");
+      }
+    });
+  }
+
+  refresh();
+  window.addEventListener("focus", refresh);
+  window.addEventListener("storage", refresh);
+
+  document.getElementById("export-csv-btn")?.addEventListener("click", () => {
+    downloadJournalCSV();
+  });
+</script>
