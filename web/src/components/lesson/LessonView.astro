@@ -1,7 +1,8 @@
 ---
 import type { Lesson } from "@/lib/types.ts";
-import { getModule, getCharacter } from "@/data/world.ts";
+import { getModule } from "@/data/world.ts";
 import DifficultyBadge from "./DifficultyBadge.astro";
+import CuratorBadge from "./CuratorBadge.astro";
 import Markdown from "./Markdown.astro";
 
 interface Props {
@@ -9,16 +10,16 @@ interface Props {
 }
 const { lesson } = Astro.props;
 const mod = getModule(lesson.moduleId);
-const curator = lesson.curator ? getCharacter(lesson.curator) : undefined;
 
-// Соседи — для навигации «← пред / след →»
+// Соседи
 const prevId = lesson.lessonId > 1 ? lesson.lessonId - 1 : null;
 const nextId =
   mod && lesson.lessonId < mod.lessonsCount ? lesson.lessonId + 1 : null;
+const isFinal = mod && lesson.lessonId === mod.lessonsCount;
 ---
 
 <article class="space-y-8 pb-12">
-  {/* Хлебные крошки + мета */}
+  {/* Хлебные крошки */}
   <nav class="flex flex-wrap items-center gap-2 text-sm text-9m-fog">
     <a href="/" class="text-9m-fog no-underline hover:text-9m-silver">Карта</a>
     <span aria-hidden="true">›</span>
@@ -32,20 +33,26 @@ const nextId =
     <span class="text-9m-silver">Урок {lesson.moduleId}.{lesson.lessonId}</span>
   </nav>
 
-  {/* Заголовок урока */}
-  <header class="space-y-3">
-    <p class="text-sm uppercase tracking-widest text-9m-fog">
+  {/* Заголовок */}
+  <header class="space-y-4">
+    <div
+      class="h-1 w-24 rounded-full"
+      style={`background-color: ${mod?.primaryColour ?? "#E2E8F0"}`}
+    >
+    </div>
+    <p class="text-xs uppercase tracking-[0.3em] text-9m-fog">
       Модуль {lesson.moduleId} · Урок {lesson.lessonId}
+      {isFinal && <span class="ml-2 text-9m-gold">· Финал модуля</span>}
     </p>
-    <h1 class="font-display text-4xl font-medium leading-tight text-9m-silver md:text-5xl">
+    <h1 class="font-display text-3xl font-medium leading-tight text-9m-silver md:text-5xl">
       {lesson.shortTitle}
     </h1>
-    <div class="flex flex-wrap gap-3 text-sm text-9m-fog">
+    <div class="flex flex-wrap items-center gap-3 text-sm text-9m-fog">
       {lesson.duration && <span>⏱ {lesson.duration} мин</span>}
-      {curator && <span>👤 {curator.nameRu}</span>}
       {mod?.shortTitle && (
         <span style={`color: ${mod.primaryColour}`}>● {mod.shortTitle}</span>
       )}
+      {lesson.curator && <CuratorBadge curatorId={lesson.curator} />}
     </div>
   </header>
 
@@ -74,7 +81,9 @@ const nextId =
     lesson.sections.map((sec) => (
       <section class="paper">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h2 class="section-heading m-0">{sec.heading.replace(/\(★+\)/g, "").trim()}</h2>
+          <h2 class="section-heading m-0">
+            {sec.heading.replace(/\(★+\)/g, "").replace(/★+/g, "").trim()}
+          </h2>
           <DifficultyBadge level={sec.difficulty} />
         </div>
         {sec.tasks.length > 0 ? (
@@ -119,8 +128,12 @@ const nextId =
           <Markdown text={lesson.english.text} />
           {lesson.english.teacherTranslation && (
             <details class="mt-4 cursor-pointer text-9m-fog">
-              <summary class="select-none font-medium">👀 Я учитель — показать перевод</summary>
-              <p class="mt-2 italic text-9m-silver/80">{lesson.english.teacherTranslation}</p>
+              <summary class="select-none font-medium">
+                👀 Я учитель — показать перевод
+              </summary>
+              <p class="mt-2 italic text-9m-silver/80">
+                {lesson.english.teacherTranslation}
+              </p>
             </details>
           )}
         </div>
@@ -158,7 +171,7 @@ const nextId =
     )
   }
 
-  {/* Ответы (под спойлером) */}
+  {/* Ответы */}
   {
     lesson.answers && (
       <section class="paper">
@@ -174,24 +187,59 @@ const nextId =
     )
   }
 
+  {/* Кнопка отметки прохождения (для финального урока модуля — отмечает модуль завершённым) */}
+  <section class="paper">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="font-display text-lg text-9m-silver">
+          {isFinal ? "Финал модуля пройден?" : "Урок пройден?"}
+        </p>
+        <p class="text-sm text-9m-fog">
+          {
+            isFinal
+              ? "Загорится Луна модуля и появится артефакт в коллекции."
+              : "Засчитается в прогресс модуля."
+          }
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <button
+          id="mark-lesson-btn"
+          class="btn"
+          data-module-id={String(lesson.moduleId)}
+          data-lesson-id={String(lesson.lessonId)}
+          data-is-final={isFinal ? "true" : "false"}
+        >
+          ✓ Отметить пройденным
+        </button>
+      </div>
+    </div>
+    <p
+      id="mark-lesson-status"
+      class="mt-3 hidden text-sm text-9m-gold"
+      role="status"
+    >
+    </p>
+  </section>
+
   {/* Навигация */}
-  <nav class="flex items-center justify-between border-t border-9m-silver/10 pt-6">
+  <nav class="flex items-center justify-between gap-3 border-t border-9m-silver/10 pt-6">
     {
       prevId ? (
         <a href={`/lesson/${lesson.moduleId}/${prevId}`} class="btn">
-          ← Предыдущий урок
+          ← Назад
         </a>
       ) : (
         <span />
       )
     }
     <a href={`/module/${lesson.moduleId}`} class="btn">
-      🗺 К уроку модуля
+      🗺 К модулю
     </a>
     {
       nextId ? (
         <a href={`/lesson/${lesson.moduleId}/${nextId}`} class="btn btn-primary">
-          Следующий урок →
+          Следующий →
         </a>
       ) : (
         <span />
@@ -199,3 +247,46 @@ const nextId =
     }
   </nav>
 </article>
+
+<script>
+  import {
+    setLessonProgress,
+    setModuleCompleted,
+    getLessonProgress,
+  } from "@lib/progress.ts";
+
+  const btn = document.getElementById("mark-lesson-btn") as HTMLButtonElement | null;
+  const status = document.getElementById("mark-lesson-status");
+  if (btn) {
+    const moduleId = parseInt(btn.dataset.moduleId!, 10);
+    const lessonId = parseInt(btn.dataset.lessonId!, 10);
+    const isFinal = btn.dataset.isFinal === "true";
+
+    // Обновить состояние кнопки если уже пройден
+    const cur = getLessonProgress(moduleId, lessonId);
+    if (cur?.completed) {
+      btn.textContent = "✓ Урок пройден";
+      btn.classList.add("border-9m-gold/60", "text-9m-gold");
+      btn.disabled = true;
+    }
+
+    btn.addEventListener("click", () => {
+      setLessonProgress(moduleId, lessonId, {
+        completed: true,
+        percent: 100,
+      });
+      if (isFinal) {
+        setModuleCompleted(moduleId);
+      }
+      btn.textContent = "✓ Урок пройден";
+      btn.classList.add("border-9m-gold/60", "text-9m-gold");
+      btn.disabled = true;
+      if (status) {
+        status.classList.remove("hidden");
+        status.textContent = isFinal
+          ? "🌙 Луна модуля загорелась! Артефакт открыт в коллекции."
+          : "Прогресс сохранён.";
+      }
+    });
+  }
+</script>

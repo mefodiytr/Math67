@@ -5,12 +5,15 @@
   "private": true,
   "description": "Felicia — Academy of Nine Moons. Interactive web app for the Math 6+ course.",
   "scripts": {
+    "predev": "bash scripts/sync-assets.sh",
     "dev": "astro dev --host",
     "start": "astro dev",
+    "prebuild": "bash scripts/sync-assets.sh",
     "build": "astro check && astro build",
     "preview": "astro preview --host",
     "astro": "astro",
-    "deploy": "bash deploy/deploy.sh"
+    "deploy": "bash deploy/deploy.sh",
+    "sync-assets": "bash scripts/sync-assets.sh"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",

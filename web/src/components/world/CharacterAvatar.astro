@@ -1,0 +1,52 @@
+---
+/**
+ * Маленький круглый аватар хранителя.
+ * Если PNG ассета не загружен — показываем SVG-плейсхолдер
+ * (инициалы на цветовом фоне).
+ */
+import { getCharacter } from "@/data/world.ts";
+import { assetUrl, placeholderSVG } from "@/lib/assets.ts";
+
+interface Props {
+  id: string;
+  size?: "sm" | "md" | "lg";
+  withName?: boolean;
+}
+const { id, size = "md", withName = false } = Astro.props;
+
+const char = getCharacter(id);
+if (!char) return null;
+
+const sizeClass = {
+  sm: "h-8 w-8",
+  md: "h-12 w-12",
+  lg: "h-20 w-20",
+}[size];
+
+const realPng = assetUrl("characters", id, "base");
+const fallback = placeholderSVG(char.nameRu, char.primaryColour);
+---
+
+<div class="flex items-center gap-2">
+  <span
+    class={`relative inline-flex ${sizeClass} shrink-0 overflow-hidden rounded-full ring-2`}
+    style={`background-color: ${char.primaryColour}26; --tw-ring-color: ${char.primaryColour}80`}
+    aria-label={`Хранитель: ${char.nameRu}`}
+  >
+    <img
+      src={realPng}
+      data-fallback={fallback}
+      alt={char.nameRu}
+      loading="lazy"
+      onerror="if(this.src!==this.dataset.fallback){this.src=this.dataset.fallback;}"
+      class="h-full w-full object-cover"
+    />
+  </span>
+  {
+    withName && (
+      <span class="font-medium text-9m-silver">
+        {char.nameRu}
+      </span>
+    )
+  }
+</div>

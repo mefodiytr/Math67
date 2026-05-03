@@ -5,9 +5,23 @@ import EmblemCorner from "@components/world/EmblemCorner.astro";
 interface Props {
   title: string;
   description?: string;
+  /** Уберает основной контейнер (для full-bleed страниц вроде карты) */
+  bleed?: boolean;
 }
 
-const { title, description = "Академия Девяти Лун — курс математики 6+ для Лены" } = Astro.props;
+const {
+  title,
+  description = "Академия Девяти Лун — курс математики 6+ для Лены",
+  bleed = false,
+} = Astro.props;
+
+const navLinks: Array<{ href: string; label: string }> = [
+  { href: "/", label: "Карта" },
+  { href: "/progress", label: "Прогресс" },
+  { href: "/collection", label: "Коллекция" },
+  { href: "/teacher", label: "Учитель" },
+  { href: "/about", label: "О курсе" },
+];
 ---
 
 <!doctype html>
@@ -21,43 +35,103 @@ const { title, description = "Академия Девяти Лун — курс 
     <title>{title} — Академия Девяти Лун</title>
   </head>
   <body class="min-h-screen">
-    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-9m-charcoal focus:px-3 focus:py-2 focus:text-9m-silver">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-9m-charcoal focus:px-3 focus:py-2 focus:text-9m-silver"
+    >
       Перейти к содержимому
     </a>
 
-    <header class="sticky top-0 z-30 border-b border-9m-silver/10 bg-9m-charcoal/70 backdrop-blur-md">
+    <header class="sticky top-0 z-30 border-b border-9m-silver/10 bg-9m-charcoal/80 backdrop-blur-md">
       <nav class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 text-sm">
         <a href="/" class="flex items-center gap-2 text-9m-silver no-underline transition-colors hover:text-9m-gold">
-          <span class="text-lg">🌙</span>
+          <span class="text-lg" aria-hidden="true">🌙</span>
           <span class="font-display tracking-wide">Академия Девяти Лун</span>
         </a>
-        <div class="flex items-center gap-4">
-          <a href="/" class="text-9m-fog no-underline hover:text-9m-silver">Карта</a>
-          <a href="/progress" class="text-9m-fog no-underline hover:text-9m-silver">Прогресс</a>
-          <a href="/collection" class="text-9m-fog no-underline hover:text-9m-silver">Коллекция</a>
-          <a href="/teacher" class="text-9m-fog no-underline hover:text-9m-silver">Учитель</a>
+
+        {/* Desktop меню */}
+        <div class="hidden items-center gap-5 md:flex">
+          {navLinks.map((l) => (
+            <a href={l.href} class="text-9m-fog no-underline hover:text-9m-silver">
+              {l.label}
+            </a>
+          ))}
         </div>
+
+        {/* Mobile burger */}
+        <button
+          id="burger"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-9m-silver/15 text-9m-silver md:hidden"
+          aria-label="Открыть меню"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-5 w-5"
+          >
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="18" x2="20" y2="18"></line>
+          </svg>
+        </button>
       </nav>
+
+      {/* Mobile drawer */}
+      <div
+        id="mobile-menu"
+        class="hidden border-t border-9m-silver/10 bg-9m-charcoal/95 px-4 pb-4 pt-2 md:hidden"
+      >
+        <ul class="space-y-1">
+          {navLinks.map((l) => (
+            <li>
+              <a
+                href={l.href}
+                class="block rounded-md px-3 py-2 text-9m-silver no-underline hover:bg-9m-silver/5"
+              >
+                {l.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
     </header>
 
-    <main id="main" class="relative mx-auto max-w-7xl px-4 py-8">
+    <main id="main" class={bleed ? "" : "mx-auto max-w-7xl px-4 py-8"}>
       <slot />
     </main>
 
     <EmblemCorner />
 
     <footer class="mt-16 border-t border-9m-silver/10 py-6 text-center text-xs text-9m-fog">
-      <p>
+      <p class="px-4">
         <span class="font-display">Академия Девяти Лун</span> · курс для Лены ·
-        <a
-          href="https://github.com/mefodiytr/math67"
-          class="text-9m-fog hover:text-9m-silver"
-          target="_blank"
-          rel="noopener"
-        >
-          source
-        </a>
+        13 модулей · 183 урока
       </p>
     </footer>
+
+    <script>
+      const burger = document.getElementById("burger");
+      const menu = document.getElementById("mobile-menu");
+      if (burger && menu) {
+        burger.addEventListener("click", () => {
+          const open = menu.classList.toggle("hidden");
+          burger.setAttribute("aria-expanded", open ? "false" : "true");
+        });
+        // Закрыть при клике на ссылку
+        menu.querySelectorAll("a").forEach((a) =>
+          a.addEventListener("click", () => {
+            menu.classList.add("hidden");
+            burger.setAttribute("aria-expanded", "false");
+          })
+        );
+      }
+    </script>
   </body>
 </html>

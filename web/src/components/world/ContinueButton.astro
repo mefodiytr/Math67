@@ -1,0 +1,36 @@
+---
+/**
+ * Кнопка «Продолжить» на главной странице.
+ * Показывает последний открытый урок (из localStorage).
+ * Без скрипта — серверный плейсхолдер «Начать с урока 0.1».
+ */
+---
+
+<a id="continue-btn" href="/lesson/0/1" class="btn btn-primary group inline-flex">
+  <span id="continue-icon" class="text-lg">🌙</span>
+  <span class="font-medium">
+    <span id="continue-label">Начать курс</span>
+    <span id="continue-detail" class="block text-xs font-normal opacity-70">
+      Модуль 0 — Прибытие
+    </span>
+  </span>
+</a>
+
+<script>
+  import { loadProgress } from "@lib/progress.ts";
+  import { MODULES } from "@/data/world.ts";
+
+  const data = loadProgress();
+  const cur = data.currentLesson;
+  if (cur) {
+    const mod = MODULES.find((m) => m.id === cur.moduleId);
+    if (mod) {
+      const btn = document.getElementById("continue-btn") as HTMLAnchorElement | null;
+      const label = document.getElementById("continue-label");
+      const detail = document.getElementById("continue-detail");
+      if (btn) btn.href = `/lesson/${cur.moduleId}/${cur.lessonId}`;
+      if (label) label.textContent = "Продолжить";
+      if (detail) detail.textContent = `Урок ${cur.moduleId}.${cur.lessonId} · ${mod.shortTitle}`;
+    }
+  }
+</script>

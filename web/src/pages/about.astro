@@ -1,0 +1,156 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { MODULES, CHARACTERS, ARTIFACTS } from "@/data/world.ts";
+
+const totalLessons = MODULES.reduce((s, m) => s + m.lessonsCount, 0);
+const totalSphinx = MODULES.length; // у каждого модуля есть финальный sphinx
+---
+
+<BaseLayout title="О курсе">
+  <div class="mx-auto max-w-3xl space-y-10">
+    <header class="space-y-3 text-center">
+      <p class="text-xs uppercase tracking-[0.4em] text-9m-fog">
+        Курс математики 6+
+      </p>
+      <h1 class="font-display text-4xl font-medium leading-tight text-9m-silver md:text-5xl">
+        О курсе
+      </h1>
+      <p class="text-9m-fog">
+        Русская школа · Cambridge Lower Secondary · олимпиадное мышление
+      </p>
+    </header>
+
+    <section class="paper">
+      <h2 class="section-heading">Идея</h2>
+      <p class="prose-lesson">
+        Курс рассчитан на ученицу <strong>Лену</strong> (6+ класс),
+        готовится к сильному 7–8 классу и Cambridge Checkpoint.
+        Программа объединяет три традиции в одной — и подаёт их в форме
+        магического приключения, чтобы заниматься было <em>интересно</em>,
+        а не «надо».
+      </p>
+      <p class="prose-lesson">
+        Лена становится <strong>Адепткой Девяти Лун</strong> — собирает 9
+        Лунных Камней, Перо Адепта, Кристалл Аксиом и в финале получает Печать.
+        Каждый артефакт — освоенная тема. Каждый остров — модуль.
+      </p>
+    </section>
+
+    <section class="paper">
+      <h2 class="section-heading">Цифры</h2>
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div class="task-card text-center">
+          <p class="font-display text-3xl text-9m-gold">{MODULES.length}</p>
+          <p class="text-xs text-9m-fog">модулей</p>
+        </div>
+        <div class="task-card text-center">
+          <p class="font-display text-3xl text-9m-teal">{totalLessons}</p>
+          <p class="text-xs text-9m-fog">уроков</p>
+        </div>
+        <div class="task-card text-center">
+          <p class="font-display text-3xl text-9m-lotus">{ARTIFACTS.length}</p>
+          <p class="text-xs text-9m-fog">артефактов</p>
+        </div>
+        <div class="task-card text-center">
+          <p class="font-display text-3xl text-9m-silver">{CHARACTERS.length}</p>
+          <p class="text-xs text-9m-fog">хранителей</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="paper">
+      <h2 class="section-heading">4 уровня в каждом уроке</h2>
+      <ul class="space-y-3">
+        <li class="flex items-start gap-3">
+          <span class="badge badge-core">★ Core</span>
+          <span class="prose-lesson">
+            Базовый школьный — нужно уметь без ошибок. ~40% времени.
+          </span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="badge badge-strong">★★ Strong</span>
+          <span class="prose-lesson">
+            Повышенный — твёрдый русский 6–7 класс. ~30%.
+          </span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="badge badge-advanced">★★★ Advanced</span>
+          <span class="prose-lesson">
+            Опережение — начало 7–8 класса. ~20%.
+          </span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="badge badge-sphinx">★★★★ Sphinx</span>
+          <span class="prose-lesson">
+            Олимпиадный — нестандартный. ~10%. По желанию.
+          </span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="paper">
+      <h2 class="section-heading">English with the Bell Fairy</h2>
+      <p class="prose-lesson">
+        Каждый урок завершается <strong>Cambridge-блоком</strong>:
+        3–5 английских терминов + задание на английском в стиле
+        <em>Cambridge Lower Secondary</em>.
+      </p>
+      <p class="prose-lesson">
+        Учитель видит перевод по нажатию «Я учитель — показать перевод».
+        Это позволяет ученице сначала <strong>попытаться понять</strong>
+        английский самостоятельно.
+      </p>
+    </section>
+
+    <section class="paper">
+      <h2 class="section-heading">Для кого</h2>
+      <div class="grid gap-4 sm:grid-cols-3">
+        <div class="task-card">
+          <p class="text-2xl">👧</p>
+          <h3 class="font-display text-lg text-9m-silver">Ученица</h3>
+          <p class="text-sm text-9m-fog">
+            Открывает урок, читает сюжет, решает задачи 4 уровней,
+            получает Луну и артефакт после финала модуля.
+          </p>
+        </div>
+        <div class="task-card">
+          <p class="text-2xl">👩‍🏫</p>
+          <h3 class="font-display text-lg text-9m-silver">Учитель</h3>
+          <p class="text-sm text-9m-fog">
+            Видит конспект и методичку с таймингом 90 минут,
+            ставит шкалы 1–5 после каждого урока, ведёт дневник.
+          </p>
+        </div>
+        <div class="task-card">
+          <p class="text-2xl">👪</p>
+          <h3 class="font-display text-lg text-9m-silver">Родитель</h3>
+          <p class="text-sm text-9m-fog">
+            Видит карту прогресса, артефакты, что освоено,
+            раз в три месяца — большой mixed-тест.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="paper">
+      <h2 class="section-heading">Финал курса</h2>
+      <p class="prose-lesson">
+        После прохождения всех 13 модулей ученица:
+      </p>
+      <ul class="prose-lesson list-disc space-y-1 pl-6">
+        <li>Закрывает программу <strong>сильного 7 класса</strong>.</li>
+        <li>Частично владеет темами <strong>8 класса</strong>.</li>
+        <li>Читает Cambridge Lower Secondary-задачи.</li>
+        <li>Решает задачи на проценты, движение, работу, смеси.</li>
+        <li>Строит и читает графики, работает с уравнениями и системами.</li>
+        <li>Доказывает простые утверждения (от противного, индукция, инвариант).</li>
+        <li>Решает олимпиадные задачи (Дирихле, раскраска, стратегия).</li>
+        <li>Не боится нестандартных формулировок.</li>
+      </ul>
+    </section>
+
+    <section class="text-center">
+      <a href="/" class="btn btn-primary">🌙 Открыть карту мира</a>
+    </section>
+  </div>
+</BaseLayout>

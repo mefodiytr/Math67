@@ -1,32 +1,65 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import WorldMap from "@components/world/WorldMap.astro";
-import { MODULES } from "@/data/world.ts";
+import ContinueButton from "@components/world/ContinueButton.astro";
+import CharacterAvatar from "@components/world/CharacterAvatar.astro";
+import { MODULES, CHARACTERS } from "@/data/world.ts";
 
 const totalLessons = MODULES.reduce((s, m) => s + m.lessonsCount, 0);
+
+// Главные хранители — без Лены, в порядке появления
+const guardians = CHARACTERS.filter((c) => c.id !== "lena").slice(0, 12);
 ---
 
-<BaseLayout title="Карта мира">
-  <section class="space-y-4 text-center">
-    <p class="text-sm uppercase tracking-[0.3em] text-9m-fog">Феликсия</p>
-    <h1 class="font-display text-5xl font-medium leading-tight text-9m-silver md:text-6xl">
-      Академия Девяти Лун
+<BaseLayout title="Карта мира" description="Академия Девяти Лун — интерактивный курс математики 6+ для Лены. 13 модулей, 183 урока.">
+  {/* HERO */}
+  <section class="relative mx-auto max-w-4xl space-y-6 py-8 text-center md:py-12">
+    <p class="animate-fade-in text-xs uppercase tracking-[0.4em] text-9m-fog md:text-sm">
+      Феликсия · 13 островов · {totalLessons} уроков
+    </p>
+    <h1 class="animate-fade-in font-display text-4xl font-medium leading-tight text-9m-silver md:text-6xl">
+      Академия<br class="md:hidden" /> <span class="text-9m-gold">Девяти Лун</span>
     </h1>
-    <p class="mx-auto max-w-2xl text-lg text-9m-silver/80">
-      13 островов · {totalLessons} уроков · Лена идёт от{" "}
-      <span class="text-9m-lotus">дробей</span> к{" "}
+    <p class="mx-auto max-w-2xl text-base text-9m-silver/85 md:text-lg">
+      Лена идёт от <span class="text-9m-lotus">дробей</span> к{" "}
       <span class="text-9m-gold">квадратным уравнениям</span>,{" "}
       <span class="text-9m-silver">доказательствам</span> и{" "}
       <span class="text-9m-scarlet">Печати Адепта</span>.
     </p>
+    <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+      <ContinueButton />
+      <a href="/about" class="btn">О курсе</a>
+    </div>
   </section>
 
-  <div class="my-8">
+  {/* Карта */}
+  <section class="my-12">
+    <div class="mb-3 flex items-center justify-between px-2">
+      <h2 class="font-display text-lg text-9m-silver md:text-xl">Острова Феликсии</h2>
+      <p class="text-xs text-9m-fog md:text-sm">
+        ◯ Текущий остров пульсирует
+      </p>
+    </div>
     <WorldMap />
-  </div>
+  </section>
 
-  {/* Сводная таблица модулей */}
-  <section class="paper">
+  {/* Полоса хранителей */}
+  <section class="paper my-12">
+    <h2 class="section-heading mb-6">Хранители</h2>
+    <div class="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12">
+      {
+        guardians.map((g) => (
+          <div class="flex flex-col items-center gap-2 text-center">
+            <CharacterAvatar id={g.id} size="md" />
+            <p class="text-xs text-9m-fog">{g.nameRu}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  {/* Сетка модулей */}
+  <section class="paper my-12">
     <h2 class="section-heading mb-6">13 модулей курса</h2>
     <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {
