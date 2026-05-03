@@ -1,0 +1,450 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { MODULES } from "@/data/world.ts";
+---
+
+<BaseLayout title="Сертификат Адепта" bleed={false}>
+  <div class="mx-auto max-w-4xl">
+    {/* Кнопки управления — скрываются при печати */}
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3 print:hidden">
+      <div>
+        <p class="text-xs uppercase tracking-[0.3em] text-9m-fog">Сертификат</p>
+        <h1 class="font-display text-3xl text-9m-silver">Адепт Девяти Лун</h1>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button id="print-btn" class="btn btn-primary" type="button">
+          🖨 Печать / PDF
+        </button>
+        <button id="edit-name-btn" class="btn" type="button">
+          ✎ Имя
+        </button>
+        <a href="/collection" class="btn">К коллекции</a>
+      </div>
+    </div>
+
+    {/* «Ещё не открыт» состояние */}
+    <div id="locked-state" class="paper hidden text-center print:hidden">
+      <p class="font-display text-2xl text-9m-silver">Сертификат запечатан</p>
+      <p class="mt-2 text-9m-fog">
+        Чтобы открыть сертификат, пройди финал Модуля 12 (Мост Алой Луны).
+      </p>
+      <p class="mt-1 text-sm text-9m-fog">
+        Завершено модулей: <span id="modules-done">0</span> / 13
+      </p>
+      <a href="/" class="btn mt-4 inline-flex">К карте мира</a>
+    </div>
+
+    {/* Сам сертификат — A4 портрет */}
+    <div id="certificate" class="certificate hidden">
+      <div class="cert-frame">
+        <div class="cert-corner corner-tl" aria-hidden="true"></div>
+        <div class="cert-corner corner-tr" aria-hidden="true"></div>
+        <div class="cert-corner corner-bl" aria-hidden="true"></div>
+        <div class="cert-corner corner-br" aria-hidden="true"></div>
+
+        <div class="cert-inner">
+          <p class="cert-eyebrow">Феликсия · Академия Девяти Лун</p>
+          <h2 class="cert-title">Сертификат Адепта</h2>
+          <p class="cert-subtitle">Удостоверяет, что</p>
+          <p class="cert-name">
+            <span id="student-name-display">Лена</span>
+          </p>
+          <p class="cert-body">
+            прошла полный курс «Математика 6+ → 7–8 класс»,
+            охватывающий русскую школьную программу,
+            <em>Cambridge&nbsp;Lower&nbsp;Secondary</em> и олимпиадное мышление,
+            и собрала все артефакты:
+          </p>
+
+          {/* Эмблема в финальной форме */}
+          <div class="cert-emblem-wrap">
+            <svg viewBox="0 0 200 200" class="cert-emblem">
+              <defs>
+                <radialGradient id="cert-aura" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.3" />
+                  <stop offset="100%" stop-color="#F59E0B" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+              <circle cx="100" cy="100" r="98" fill="url(#cert-aura)" />
+              <circle cx="100" cy="100" r="86" fill="none" stroke="#7F1D1D" stroke-width="3" />
+              <circle cx="100" cy="100" r="80" fill="rgba(15,23,42,0.05)" stroke="#94A3B8" stroke-width="1" />
+              <circle cx="100" cy="100" r="74" fill="none" stroke="rgba(148,163,184,0.5)" stroke-width="0.5" />
+              {/* 9 цветных полумесяцев */}
+              {
+                [
+                  "#F472B6",
+                  "#0EA5E9",
+                  "#F59E0B",
+                  "#E2E8F0",
+                  "#E11D48",
+                  "#F59E0B",
+                  "#10B981",
+                  "#7C3AED",
+                  "#1E3A8A",
+                ].map((c, i) => {
+                  const angle = -90 + i * 40;
+                  const r = 67;
+                  const x = 100 + r * Math.cos((angle * Math.PI) / 180);
+                  const y = 100 + r * Math.sin((angle * Math.PI) / 180);
+                  return (
+                    <circle
+                      cx={x}
+                      cy={y}
+                      r="6"
+                      fill={c}
+                      stroke="rgba(15,23,42,0.4)"
+                      stroke-width="0.5"
+                    />
+                  );
+                })
+              }
+              {/* Перо (вверх) */}
+              <path
+                d="M 100 50 Q 96 30 100 24 Q 104 30 100 50 Z"
+                fill="#F8FAFC"
+                stroke="#94A3B8"
+                stroke-width="0.5"
+              />
+              {/* Кристалл (вниз) */}
+              <polygon
+                points="100,148 92,154 92,168 100,176 108,168 108,154"
+                fill="rgba(226,232,240,0.4)"
+                stroke="#E2E8F0"
+                stroke-width="0.6"
+              />
+              <text
+                x="100"
+                y="103"
+                text-anchor="middle"
+                font-family="serif"
+                font-size="20"
+                fill="#7F1D1D"
+                font-weight="600"
+              >
+                ★
+              </text>
+            </svg>
+          </div>
+
+          <div class="cert-stats">
+            <div class="cert-stat">
+              <span class="cert-stat-num">9</span>
+              <span class="cert-stat-label">Лунных Камней</span>
+            </div>
+            <div class="cert-stat">
+              <span class="cert-stat-num">+</span>
+              <span class="cert-stat-label">Перо · Кристалл · Печать</span>
+            </div>
+            <div class="cert-stat">
+              <span class="cert-stat-num">183</span>
+              <span class="cert-stat-label">уроков</span>
+            </div>
+          </div>
+
+          <div class="cert-modules">
+            {
+              MODULES.map((m) => (
+                <span class="cert-module-badge" style={`color: ${m.primaryColour}; border-color: ${m.primaryColour}88`}>
+                  {m.id}
+                </span>
+              ))
+            }
+          </div>
+
+          <p class="cert-quote">
+            «Девять Лун горят. Перо в руке. Кристалл на плече. Печать на запястье.
+            Завтра — седьмой класс.»
+          </p>
+
+          <div class="cert-meta">
+            <div>
+              <p class="cert-meta-label">Дата завершения</p>
+              <p class="cert-meta-value" id="completion-date">
+                —
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="cert-meta-label">Подпись наставницы</p>
+              <p class="cert-meta-signature">Цукико</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .certificate {
+    /* A4-портрет, ~210x297 mm */
+    aspect-ratio: 210 / 297;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+    color: #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .cert-frame {
+    position: absolute;
+    inset: 24px;
+    border: 2px solid rgba(127, 29, 29, 0.6);
+    border-radius: 4px;
+    box-shadow:
+      0 0 0 1px rgba(245, 158, 11, 0.3) inset,
+      0 0 0 12px rgba(15, 23, 42, 0.3) inset;
+  }
+
+  .cert-corner {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background:
+      radial-gradient(circle, rgba(245, 158, 11, 0.5) 0%, transparent 70%);
+  }
+  .corner-tl { top: -10px; left: -10px; }
+  .corner-tr { top: -10px; right: -10px; }
+  .corner-bl { bottom: -10px; left: -10px; }
+  .corner-br { bottom: -10px; right: -10px; }
+
+  .cert-inner {
+    position: absolute;
+    inset: 36px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .cert-eyebrow {
+    margin: 0;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: rgba(226, 232, 240, 0.5);
+  }
+  .cert-title {
+    margin: 0;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 38px;
+    font-weight: 500;
+    color: #f59e0b;
+    letter-spacing: 0.05em;
+  }
+  .cert-subtitle {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: rgba(226, 232, 240, 0.7);
+  }
+  .cert-name {
+    margin: 8px 0;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 48px;
+    color: #e2e8f0;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.4);
+    padding-bottom: 6px;
+    min-width: 50%;
+  }
+  .cert-body {
+    margin: 8px 0 4px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(226, 232, 240, 0.85);
+    max-width: 500px;
+  }
+  .cert-emblem-wrap {
+    margin: 6px 0;
+    display: flex;
+    justify-content: center;
+  }
+  .cert-emblem {
+    width: 160px;
+    height: 160px;
+    filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.3));
+  }
+  .cert-stats {
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+    max-width: 460px;
+  }
+  .cert-stat {
+    text-align: center;
+    border-top: 1px solid rgba(226, 232, 240, 0.15);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.15);
+    padding: 6px 0;
+  }
+  .cert-stat-num {
+    display: block;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 24px;
+    color: #f59e0b;
+    line-height: 1;
+  }
+  .cert-stat-label {
+    display: block;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(226, 232, 240, 0.55);
+    margin-top: 2px;
+  }
+  .cert-modules {
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+  .cert-module-badge {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .cert-quote {
+    margin-top: 10px;
+    font-size: 11px;
+    font-style: italic;
+    color: rgba(226, 232, 240, 0.7);
+    max-width: 500px;
+  }
+  .cert-meta {
+    margin-top: auto;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-top: 12px;
+    border-top: 1px solid rgba(226, 232, 240, 0.1);
+  }
+  .cert-meta-label {
+    margin: 0;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(226, 232, 240, 0.5);
+  }
+  .cert-meta-value {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: rgba(226, 232, 240, 0.85);
+  }
+  .cert-meta-signature {
+    margin: 4px 0 0;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 22px;
+    font-style: italic;
+    color: #f59e0b;
+  }
+
+  /* Печать */
+  @media print {
+    @page {
+      size: A4;
+      margin: 0;
+    }
+    body * {
+      visibility: hidden;
+    }
+    .certificate,
+    .certificate * {
+      visibility: visible;
+    }
+    .certificate {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      max-width: none;
+      border-radius: 0;
+    }
+  }
+</style>
+
+<script>
+  import { loadProgress } from "@lib/progress.ts";
+
+  const NAME_KEY = "9moons.studentName";
+
+  function refresh(): void {
+    const data = loadProgress();
+    const completedCount = Object.values(data.modules ?? {}).filter(
+      (m) => m.completed
+    ).length;
+    const m12Done = data.modules?.["12"]?.completed === true;
+
+    const cert = document.getElementById("certificate");
+    const locked = document.getElementById("locked-state");
+    const modulesDone = document.getElementById("modules-done");
+    if (modulesDone) modulesDone.textContent = String(completedCount);
+
+    if (m12Done) {
+      cert?.classList.remove("hidden");
+      locked?.classList.add("hidden");
+      // Дата завершения = completedAt модуля 12
+      const date = new Date(data.modules!["12"].completedAt ?? Date.now());
+      const dateEl = document.getElementById("completion-date");
+      if (dateEl) {
+        dateEl.textContent = date.toLocaleDateString("ru-RU", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      }
+    } else {
+      cert?.classList.add("hidden");
+      locked?.classList.remove("hidden");
+    }
+
+    // Имя
+    const stored = (() => {
+      try {
+        return localStorage.getItem(NAME_KEY);
+      } catch {
+        return null;
+      }
+    })();
+    const nameDisplay = document.getElementById("student-name-display");
+    if (nameDisplay) nameDisplay.textContent = stored || "Лена";
+  }
+
+  refresh();
+  window.addEventListener("focus", refresh);
+  window.addEventListener("storage", refresh);
+
+  // Печать
+  document.getElementById("print-btn")?.addEventListener("click", () => {
+    window.print();
+  });
+
+  // Имя ученицы
+  document.getElementById("edit-name-btn")?.addEventListener("click", () => {
+    const cur = (() => {
+      try {
+        return localStorage.getItem(NAME_KEY) ?? "Лена";
+      } catch {
+        return "Лена";
+      }
+    })();
+    const next = prompt("Имя на сертификате:", cur);
+    if (next && next.trim()) {
+      try {
+        localStorage.setItem(NAME_KEY, next.trim());
+      } catch {}
+      refresh();
+    }
+  });
+</script>

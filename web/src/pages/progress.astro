@@ -1,18 +1,31 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
+import RadarChart from "@components/progress/RadarChart.tsx";
 import { MODULES } from "@/data/world.ts";
 ---
 
 <BaseLayout title="Прогресс">
   <header class="mb-8 space-y-2">
-    <p class="text-sm uppercase tracking-[0.3em] text-9m-fog">Карта навыков</p>
-    <h1 class="font-display text-4xl font-medium text-9m-silver">Твой прогресс</h1>
+    <p class="text-sm uppercase tracking-[0.3em] text-9m-fog">
+      Карта навыков
+    </p>
+    <h1 class="font-display text-4xl font-medium text-9m-silver">
+      Твой прогресс
+    </h1>
     <p class="text-9m-fog">
-      Здесь будет радарная диаграмма по 12 темам и история уроков (Phase 6).
+      Радар по 12 модулям: сколько освоено, по оценке учителя или по числу
+      пройденных уроков.
     </p>
   </header>
 
+  {/* Radar */}
   <section class="paper">
+    <h2 class="section-heading">Радар навыков</h2>
+    <RadarChart client:load />
+  </section>
+
+  {/* По модулям */}
+  <section class="paper mt-6">
     <h2 class="section-heading">По модулям</h2>
     <div id="progress-grid" class="grid gap-3 sm:grid-cols-2">
       {
@@ -30,31 +43,124 @@ import { MODULES } from "@/data/world.ts";
               </span>
               <span class="text-9m-silver">{m.shortTitle}</span>
             </div>
-            <span class="text-sm text-9m-fog" data-module-status>—</span>
+            <div class="flex items-center gap-3 text-sm">
+              <div class="hidden h-1.5 w-20 overflow-hidden rounded-full bg-9m-silver/10 sm:block">
+                <div
+                  class="h-full rounded-full transition-all duration-500"
+                  data-module-bar
+                  style={`width: 0%; background-color: ${m.primaryColour}`}
+                />
+              </div>
+              <span class="text-9m-fog tabular-nums" data-module-status>
+                —
+              </span>
+            </div>
           </div>
         ))
       }
+    </div>
+  </section>
+
+  {/* История последних 10 уроков */}
+  <section class="paper mt-6">
+    <h2 class="section-heading">История</h2>
+    <div id="history-list" class="space-y-2">
+      <p class="text-sm text-9m-fog">Загрузка…</p>
     </div>
   </section>
 </BaseLayout>
 
 <script>
   import { loadProgress } from "@lib/progress.ts";
+  import { MODULES } from "@/data/world.ts";
 
-  const data = loadProgress();
-  document.querySelectorAll<HTMLElement>("[data-module]").forEach((el) => {
-    const id = el.dataset.module;
-    if (!id) return;
-    const m = data.modules[id];
-    const status = el.querySelector<HTMLElement>("[data-module-status]");
-    if (!status) return;
-    if (m?.completed) {
-      status.textContent = "✓ пройден";
-      status.classList.add("text-9m-gold");
-    } else {
-      // Сколько уроков посещено
-      const visited = Object.keys(data.lessons).filter((k) => k.startsWith(`${id}.`)).length;
-      status.textContent = visited > 0 ? `${visited} уроков посещено` : "не начат";
+  function refresh(): void {
+    const data = loadProgress();
+
+    // По модулям
+    document.querySelectorAll<HTMLElement>("[data-module]").forEach((el) => {
+      const id = el.dataset.module;
+      if (!id) return;
+      const mod = MODULES.find((m) => m.id === parseInt(id, 10));
+      if (!mod) return;
+
+      const completed = data.modules?.[id]?.completed;
+      const visited = Object.keys(data.lessons ?? {}).filter((k) =>
+        k.startsWith(`${id}.`)
+      ).length;
+      const completedLessons = Object.entries(data.lessons ?? {}).filter(
+        ([k, v]) => k.startsWith(`${id}.`) && v.completed
+      ).length;
+
+      const status = el.querySelector<HTMLElement>("[data-module-status]");
+      const bar = el.querySelector<HTMLElement>("[data-module-bar]");
+
+      if (completed) {
+        if (status) {
+          status.textContent = "✓ пройден";
+          status.classList.add("text-9m-gold");
+        }
+        if (bar) bar.style.width = "100%";
+      } else if (visited > 0) {
+        const pct = Math.round((completedLessons / mod.lessonsCount) * 100);
+        if (status) {
+          status.textContent = `${completedLessons}/${mod.lessonsCount}`;
+        }
+        if (bar) bar.style.width = `${pct}%`;
+      } else {
+        if (status) status.textContent = "не начат";
+      }
+    });
+
+    // История: 10 последних уроков по lastVisited
+    const sorted = Object.entries(data.lessons ?? {})
+      .filter(([, v]) => v.lastVisited)
+      .sort(
+        (a, b) =>
+          new Date(b[1].lastVisited).getTime() -
+          new Date(a[1].lastVisited).getTime()
+      )
+      .slice(0, 10);
+
+    const list = document.getElementById("history-list");
+    if (!list) return;
+    if (sorted.length === 0) {
+      list.innerHTML =
+        '<p class="text-sm text-9m-fog">Пока ни одного урока не открывала. Зайди на <a class="text-9m-teal" href="/">карту</a>.</p>';
+      return;
     }
-  });
+    list.innerHTML = sorted
+      .map(([k, v]) => {
+        const [mid, lid] = k.split(".");
+        const mod = MODULES.find((m) => m.id === parseInt(mid, 10));
+        const date = new Date(v.lastVisited).toLocaleDateString("ru-RU");
+        const time = new Date(v.lastVisited).toLocaleTimeString("ru-RU", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const status = v.completed
+          ? '<span class="text-9m-gold">✓</span>'
+          : `<span class="text-9m-fog">${v.solvedCount}/${v.totalCount || "?"}</span>`;
+        return `
+          <a href="/lesson/${mid}/${lid}"
+             class="task-card flex items-center justify-between gap-3 no-underline"
+             style="border-left: 2px solid ${mod?.primaryColour ?? "#E2E8F0"}">
+            <div>
+              <p class="text-sm text-9m-silver">
+                <span class="text-9m-fog">${k}</span> · ${mod?.shortTitle ?? ""}
+              </p>
+            </div>
+            <div class="text-right text-xs text-9m-fog">
+              <div>${status}</div>
+              <div>${date} · ${time}</div>
+            </div>
+          </a>
+        `;
+      })
+      .join("");
+  }
+
+  refresh();
+  window.addEventListener("focus", refresh);
+  window.addEventListener("storage", refresh);
 </script>

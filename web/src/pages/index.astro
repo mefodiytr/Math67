@@ -29,8 +29,19 @@ const guardians = CHARACTERS.filter((c) => c.id !== "lena").slice(0, 12);
     <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
       <ContinueButton />
       <a href="/about" class="btn">О курсе</a>
+      <a id="cert-link" href="/certificate" class="btn btn-primary hidden">
+        🌟 Сертификат Адепта
+      </a>
     </div>
   </section>
+
+  <script>
+    import { loadProgress } from "@lib/progress.ts";
+    const data = loadProgress();
+    if (data.modules?.["12"]?.completed) {
+      document.getElementById("cert-link")?.classList.remove("hidden");
+    }
+  </script>
 
   {/* Карта */}
   <section class="my-12">

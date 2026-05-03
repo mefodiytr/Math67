@@ -16,6 +16,26 @@ import { assetUrl, placeholderSVG } from "@/lib/assets.ts";
     </p>
   </header>
 
+  {/* Баннер «Сертификат готов» — показывается, если Модуль 12 завершён */}
+  <div
+    id="cert-banner"
+    class="paper mb-6 hidden border-l-4 border-9m-gold bg-9m-gold/5"
+  >
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="font-display text-xl text-9m-gold">
+          🌙 Сертификат Адепта готов
+        </p>
+        <p class="text-sm text-9m-silver/80">
+          Все 9 Лун + Перо + Кристалл + Печать. Можно открыть и распечатать.
+        </p>
+      </div>
+      <a href="/certificate" class="btn btn-primary">
+        Открыть сертификат →
+      </a>
+    </div>
+  </div>
+
   <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" id="artifact-grid">
     {
       ARTIFACTS.map((a) => {
@@ -108,4 +128,19 @@ import { assetUrl, placeholderSVG } from "@/lib/assets.ts";
   paintCollection();
   window.addEventListener("storage", paintCollection);
   window.addEventListener("focus", paintCollection);
+
+  // Баннер сертификата
+  function refreshBanner(): void {
+    const data = loadProgress();
+    const banner = document.getElementById("cert-banner");
+    if (!banner) return;
+    if (data.modules?.["12"]?.completed) {
+      banner.classList.remove("hidden");
+    } else {
+      banner.classList.add("hidden");
+    }
+  }
+  refreshBanner();
+  window.addEventListener("focus", refreshBanner);
+  window.addEventListener("storage", refreshBanner);
 </script>
