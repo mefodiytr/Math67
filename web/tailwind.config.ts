@@ -86,6 +86,8 @@ export default {
         "fade-in": "fadeIn 0.5s ease-out",
         "lift": "lift 0.3s ease-out",
         "shimmer": "shimmer 2.5s ease-in-out infinite",
+        "shake": "shake 0.4s ease-in-out",
+        "pop": "pop 0.3s ease-out",
       },
       keyframes: {
         fadeIn: {
@@ -99,6 +101,16 @@ export default {
         shimmer: {
           "0%, 100%": { opacity: "0.6" },
           "50%": { opacity: "1" },
+        },
+        shake: {
+          "0%, 100%": { transform: "translateX(0)" },
+          "20%, 60%": { transform: "translateX(-6px)" },
+          "40%, 80%": { transform: "translateX(6px)" },
+        },
+        pop: {
+          "0%": { transform: "scale(0.95)", opacity: "0" },
+          "50%": { transform: "scale(1.05)" },
+          "100%": { transform: "scale(1)", opacity: "1" },
         },
       },
     },

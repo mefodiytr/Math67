@@ -1,0 +1,75 @@
+---
+/**
+ * Прогресс-бар урока: «5 / 12 решено».
+ * Подсчитывается на клиенте по данным из localStorage.
+ */
+interface Props {
+  moduleId: number;
+  lessonId: number;
+  totalCount: number;
+}
+const { moduleId, lessonId, totalCount } = Astro.props;
+---
+
+<div
+  class="lesson-progress sticky top-16 z-10 -mx-4 border-b border-9m-silver/10 bg-9m-charcoal/85 px-4 py-2 backdrop-blur-md md:rounded-md md:border md:mx-0"
+  data-module-id={String(moduleId)}
+  data-lesson-id={String(lessonId)}
+  data-total={String(totalCount)}
+>
+  <div class="flex items-center justify-between gap-3">
+    <div class="flex items-center gap-2 text-sm">
+      <span class="text-9m-fog">Прогресс урока:</span>
+      <span class="font-medium text-9m-silver">
+        <span data-solved>0</span> / {totalCount}
+      </span>
+    </div>
+    <div class="flex-1 max-w-xs">
+      <div class="h-1.5 overflow-hidden rounded-full bg-9m-silver/10">
+        <div
+          data-bar
+          class="h-full rounded-full bg-gradient-to-r from-9m-teal via-9m-gold to-9m-scarlet transition-all duration-500"
+          style="width: 0%"
+        />
+      </div>
+    </div>
+    <span class="hidden text-xs text-9m-fog sm:inline" data-pct>0%</span>
+  </div>
+</div>
+
+<script>
+  import { loadProgress, setLessonTotal } from "@lib/progress.ts";
+
+  const root = document.querySelector<HTMLElement>(".lesson-progress");
+  if (root) {
+    const moduleId = parseInt(root.dataset.moduleId!, 10);
+    const lessonId = parseInt(root.dataset.lessonId!, 10);
+    const total = parseInt(root.dataset.total!, 10);
+
+    // Сохраняем «всего задач» в localStorage (для карты прогресса)
+    setLessonTotal(moduleId, lessonId, total);
+
+    function update(): void {
+      const data = loadProgress();
+      const prefix = `${moduleId}.${lessonId}.`;
+      const correct = Object.entries(data.tasks ?? {}).filter(
+        ([k, v]) => k.startsWith(prefix) && v.status === "correct"
+      ).length;
+      const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+      const solved = root.querySelector<HTMLElement>("[data-solved]");
+      if (solved) solved.textContent = String(correct);
+      const bar = root.querySelector<HTMLElement>("[data-bar]");
+      if (bar) bar.style.width = `${pct}%`;
+      const pctEl = root.querySelector<HTMLElement>("[data-pct]");
+      if (pctEl) pctEl.textContent = `${pct}%`;
+    }
+
+    update();
+    // Обновляться при любом «storage» событии или фокусе таба
+    window.addEventListener("storage", update);
+    window.addEventListener("focus", update);
+    // И при клике в любую кнопку — лайтовая стратегия
+    document.addEventListener("click", () => setTimeout(update, 100));
+  }
+</script>

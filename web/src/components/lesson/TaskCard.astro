@@ -1,0 +1,57 @@
+---
+/**
+ * Карточка одной задачи в уроке. По типу задачи рендерит:
+ *  - <TaskInput>      для numeric / choice (авто-проверка)
+ *  - <SelfCheck>      для self-check (по нажатию «Решила»)
+ *  - просто текст     если ответа в уроке нет (ничего не проверяем)
+ */
+import type { Task } from "@/lib/types.ts";
+import Markdown from "./Markdown.astro";
+import TaskInput from "@components/interactive/TaskInput.tsx";
+import SelfCheck from "@components/interactive/SelfCheck.tsx";
+
+interface Props {
+  task: Task;
+  moduleId: number;
+  lessonId: number;
+}
+const { task, moduleId, lessonId } = Astro.props;
+
+const interactiveType = task.expectedAnswer ? task.answerType : undefined;
+---
+
+<li
+  class="task-card"
+  data-task-key={`${moduleId}.${lessonId}.${task.number}`}
+>
+  <div class="flex gap-3">
+    <span class="font-display text-9m-gold" aria-hidden="true">
+      {task.number}.
+    </span>
+    <div class="flex-1">
+      <Markdown text={task.text} />
+
+      {/* Интерактивная проверка */}
+      {
+        interactiveType === "numeric" || interactiveType === "choice" ? (
+          <TaskInput
+            client:load
+            moduleId={moduleId}
+            lessonId={lessonId}
+            taskNumber={task.number}
+            expectedAnswer={task.expectedAnswer!}
+            answerType={interactiveType}
+          />
+        ) : task.expectedAnswer ? (
+          <SelfCheck
+            client:load
+            moduleId={moduleId}
+            lessonId={lessonId}
+            taskNumber={task.number}
+            expectedAnswer={task.expectedAnswer}
+          />
+        ) : null
+      }
+    </div>
+  </div>
+</li>

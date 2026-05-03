@@ -4,6 +4,10 @@ import { getModule } from "@/data/world.ts";
 import DifficultyBadge from "./DifficultyBadge.astro";
 import CuratorBadge from "./CuratorBadge.astro";
 import Markdown from "./Markdown.astro";
+import TaskCard from "./TaskCard.astro";
+import LessonProgressBar from "./LessonProgressBar.astro";
+import TaskInput from "@components/interactive/TaskInput.tsx";
+import SelfCheck from "@components/interactive/SelfCheck.tsx";
 
 interface Props {
   lesson: Lesson;
@@ -16,6 +20,15 @@ const prevId = lesson.lessonId > 1 ? lesson.lessonId - 1 : null;
 const nextId =
   mod && lesson.lessonId < mod.lessonsCount ? lesson.lessonId + 1 : null;
 const isFinal = mod && lesson.lessonId === mod.lessonsCount;
+
+// Сколько всего «проверяемых» задач
+let totalCheckable = 0;
+for (const sec of lesson.sections) {
+  for (const t of sec.tasks) {
+    if (t.expectedAnswer) totalCheckable++;
+  }
+}
+if (lesson.sphinx?.expectedAnswer) totalCheckable++;
 ---
 
 <article class="space-y-8 pb-12">
@@ -56,6 +69,17 @@ const isFinal = mod && lesson.lessonId === mod.lessonsCount;
     </div>
   </header>
 
+  {/* Прогресс-бар (показываем если есть задачи с проверкой) */}
+  {
+    totalCheckable > 0 && (
+      <LessonProgressBar
+        moduleId={lesson.moduleId}
+        lessonId={lesson.lessonId}
+        totalCount={totalCheckable}
+      />
+    )
+  }
+
   {/* Сюжет */}
   {
     lesson.story && (
@@ -89,14 +113,7 @@ const isFinal = mod && lesson.lessonId === mod.lessonsCount;
         {sec.tasks.length > 0 ? (
           <ol class="space-y-3">
             {sec.tasks.map((t) => (
-              <li class="task-card">
-                <div class="flex gap-3">
-                  <span class="font-display text-9m-gold">{t.number}.</span>
-                  <div class="flex-1">
-                    <Markdown text={t.text} />
-                  </div>
-                </div>
-              </li>
+              <TaskCard task={t} moduleId={lesson.moduleId} lessonId={lesson.lessonId} />
             ))}
           </ol>
         ) : (
@@ -110,8 +127,31 @@ const isFinal = mod && lesson.lessonId === mod.lessonsCount;
   {
     lesson.sphinx && (
       <section class="sphinx-block">
-        <h2 class="mb-3 font-display text-2xl text-9m-gold">{lesson.sphinx.heading}</h2>
+        <h2 class="mb-3 font-display text-2xl text-9m-gold">
+          {lesson.sphinx.heading}
+        </h2>
         <Markdown text={lesson.sphinx.text} />
+        {lesson.sphinx.expectedAnswer ? (
+          lesson.sphinx.answerType === "numeric" ||
+          lesson.sphinx.answerType === "choice" ? (
+            <TaskInput
+              client:load
+              moduleId={lesson.moduleId}
+              lessonId={lesson.lessonId}
+              taskNumber="sphinx"
+              expectedAnswer={lesson.sphinx.expectedAnswer}
+              answerType={lesson.sphinx.answerType}
+            />
+          ) : (
+            <SelfCheck
+              client:load
+              moduleId={lesson.moduleId}
+              lessonId={lesson.lessonId}
+              taskNumber="sphinx"
+              expectedAnswer={lesson.sphinx.expectedAnswer}
+            />
+          )
+        ) : null}
       </section>
     )
   }
@@ -171,7 +211,7 @@ const isFinal = mod && lesson.lessonId === mod.lessonsCount;
     )
   }
 
-  {/* Ответы */}
+  {/* Ответы под спойлером */}
   {
     lesson.answers && (
       <section class="paper">
@@ -187,7 +227,7 @@ const isFinal = mod && lesson.lessonId === mod.lessonsCount;
     )
   }
 
-  {/* Кнопка отметки прохождения (для финального урока модуля — отмечает модуль завершённым) */}
+  {/* Кнопка отметки прохождения */}
   <section class="paper">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
@@ -253,8 +293,10 @@ const isFinal = mod && lesson.lessonId === mod.lessonsCount;
     setLessonProgress,
     setModuleCompleted,
     getLessonProgress,
+    loadProgress,
   } from "@lib/progress.ts";
 
+  // ── Кнопка «отметить пройденным» ───────────────────
   const btn = document.getElementById("mark-lesson-btn") as HTMLButtonElement | null;
   const status = document.getElementById("mark-lesson-status");
   if (btn) {
@@ -262,7 +304,6 @@ const isFinal = mod && lesson.lessonId === mod.lessonsCount;
     const lessonId = parseInt(btn.dataset.lessonId!, 10);
     const isFinal = btn.dataset.isFinal === "true";
 
-    // Обновить состояние кнопки если уже пройден
     const cur = getLessonProgress(moduleId, lessonId);
     if (cur?.completed) {
       btn.textContent = "✓ Урок пройден";
@@ -289,4 +330,21 @@ const isFinal = mod && lesson.lessonId === mod.lessonsCount;
       }
     });
   }
+
+  // ── Подсветка карточек задач по статусу из localStorage ───────────────
+  function paintTaskCards(): void {
+    const data = loadProgress();
+    document.querySelectorAll<HTMLElement>("[data-task-key]").forEach((el) => {
+      const key = el.dataset.taskKey!;
+      const t = data.tasks?.[key];
+      el.classList.remove("is-correct", "is-wrong");
+      if (!t) return;
+      if (t.status === "correct") el.classList.add("is-correct");
+      if (t.status === "wrong") el.classList.add("is-wrong");
+    });
+  }
+  paintTaskCards();
+  // Перерисовываем при кликах (после ответа в виджете)
+  document.addEventListener("click", () => setTimeout(paintTaskCards, 100));
+  window.addEventListener("storage", paintTaskCards);
 </script>

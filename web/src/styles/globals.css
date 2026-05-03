@@ -99,6 +99,13 @@
   .task-card:hover {
     @apply border-9m-silver/25 bg-9m-bg-deep/80;
   }
+  /* Подсветка решённой задачи (управляется через [data-task-key] + js) */
+  .task-card.is-correct {
+    @apply border-9m-gold/40 bg-9m-gold/5;
+  }
+  .task-card.is-wrong {
+    @apply border-9m-scarlet/30 bg-9m-scarlet/5;
+  }
 
   /* Кнопка-ссылка магического стиля */
   .btn {

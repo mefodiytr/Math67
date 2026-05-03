@@ -27,11 +27,26 @@ export interface ModuleProgress {
   completedAt?: string;
 }
 
+export type TaskStatus = "unanswered" | "correct" | "wrong";
+
+export interface TaskAttempt {
+  /** Текущий статус */
+  status: TaskStatus;
+  /** Сколько раз пробовала (включая правильную) */
+  attempts: number;
+  /** Последний введённый ответ (для UX — показать, что было) */
+  lastAnswer?: string;
+  /** Когда был последний ответ */
+  answeredAt?: string;
+}
+
 export interface CourseProgress {
   /** Прогресс по урокам: ключ = "M.L" (например, "8.12") */
   lessons: Record<string, LessonProgress>;
   /** Прогресс по модулям: ключ = id модуля ("0".."12") */
   modules: Record<string, ModuleProgress>;
+  /** Прогресс по задачам: ключ = "M.L.N" (например, "8.12.5") */
+  tasks: Record<string, TaskAttempt>;
   /** Текущий урок (последний открытый) */
   currentLesson?: { moduleId: number; lessonId: number };
 }
@@ -39,6 +54,7 @@ export interface CourseProgress {
 const EMPTY: CourseProgress = {
   lessons: {},
   modules: {},
+  tasks: {},
 };
 
 function isBrowser(): boolean {
@@ -50,7 +66,14 @@ export function loadProgress(): CourseProgress {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return EMPTY;
-    return { ...EMPTY, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    return {
+      ...EMPTY,
+      ...parsed,
+      lessons: parsed.lessons ?? {},
+      modules: parsed.modules ?? {},
+      tasks: parsed.tasks ?? {}, // обратная совместимость с прошлой версией
+    };
   } catch {
     return EMPTY;
   }
@@ -67,6 +90,96 @@ export function saveProgress(p: CourseProgress): void {
 
 export function lessonKey(moduleId: number, lessonId: number): string {
   return `${moduleId}.${lessonId}`;
+}
+
+export function taskKey(
+  moduleId: number,
+  lessonId: number,
+  taskNumber: string
+): string {
+  return `${moduleId}.${lessonId}.${taskNumber}`;
+}
+
+export function getTaskAttempt(
+  moduleId: number,
+  lessonId: number,
+  taskNumber: string
+): TaskAttempt {
+  const all = loadProgress();
+  return (
+    all.tasks[taskKey(moduleId, lessonId, taskNumber)] ?? {
+      status: "unanswered",
+      attempts: 0,
+    }
+  );
+}
+
+export function setTaskAttempt(
+  moduleId: number,
+  lessonId: number,
+  taskNumber: string,
+  attempt: Partial<TaskAttempt>
+): void {
+  const all = loadProgress();
+  const key = taskKey(moduleId, lessonId, taskNumber);
+  const prev = all.tasks[key] ?? {
+    status: "unanswered" as TaskStatus,
+    attempts: 0,
+  };
+  const next: TaskAttempt = {
+    status: attempt.status ?? prev.status,
+    attempts: attempt.attempts ?? prev.attempts,
+    lastAnswer: attempt.lastAnswer ?? prev.lastAnswer,
+    answeredAt: attempt.answeredAt ?? new Date().toISOString(),
+  };
+  all.tasks[key] = next;
+
+  // Автоматически пересчитываем solvedCount урока:
+  const correctTasks = Object.entries(all.tasks).filter(
+    ([k, v]) => k.startsWith(`${moduleId}.${lessonId}.`) && v.status === "correct"
+  ).length;
+  const lk = lessonKey(moduleId, lessonId);
+  const lp = all.lessons[lk] ?? {
+    solvedCount: 0,
+    totalCount: 0,
+    percent: 0,
+    lastVisited: new Date().toISOString(),
+    completed: false,
+  };
+  lp.solvedCount = correctTasks;
+  if (lp.totalCount > 0) {
+    lp.percent = Math.round((correctTasks / lp.totalCount) * 100);
+  }
+  lp.lastVisited = new Date().toISOString();
+  all.lessons[lk] = lp;
+  all.currentLesson = { moduleId, lessonId };
+
+  saveProgress(all);
+}
+
+/** Установить общее число задач в уроке (вызывается при загрузке страницы урока). */
+export function setLessonTotal(
+  moduleId: number,
+  lessonId: number,
+  totalCount: number
+): void {
+  const all = loadProgress();
+  const lk = lessonKey(moduleId, lessonId);
+  const lp = all.lessons[lk] ?? {
+    solvedCount: 0,
+    totalCount: 0,
+    percent: 0,
+    lastVisited: new Date().toISOString(),
+    completed: false,
+  };
+  if (lp.totalCount !== totalCount) {
+    lp.totalCount = totalCount;
+    if (totalCount > 0) {
+      lp.percent = Math.round((lp.solvedCount / totalCount) * 100);
+    }
+    all.lessons[lk] = lp;
+    saveProgress(all);
+  }
 }
 
 export function getLessonProgress(

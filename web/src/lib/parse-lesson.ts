@@ -15,6 +15,7 @@ import type {
   EnglishBlock,
   SphinxFinal,
 } from "./types.ts";
+import { parseAnswers, detectAnswerType } from "./answers.ts";
 
 // Корень контента (относительно web/, поднимаемся на уровень выше)
 const CONTENT_ROOT = new URL("../../../lessons", import.meta.url).pathname;
@@ -323,6 +324,24 @@ export function parseLessonFile(absPath: string): Lesson | null {
   }
 
   lesson.answers = extractAnswers(md);
+
+  // Привязываем ответы к задачам
+  if (lesson.answers) {
+    const parsed = parseAnswers(lesson.answers);
+    for (const sec of lesson.sections) {
+      for (const t of sec.tasks) {
+        const ans = parsed.byNumber[t.number];
+        if (ans) {
+          t.expectedAnswer = ans;
+          t.answerType = detectAnswerType(ans, t.text);
+        }
+      }
+    }
+    if (lesson.sphinx && parsed.sphinx) {
+      lesson.sphinx.expectedAnswer = parsed.sphinx;
+      lesson.sphinx.answerType = detectAnswerType(parsed.sphinx, lesson.sphinx.text);
+    }
+  }
 
   return lesson;
 }

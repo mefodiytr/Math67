@@ -6,6 +6,8 @@
 export type Difficulty = 1 | 2 | 3 | 4;
 //  1 = ★ Core | 2 = ★★ Strong | 3 = ★★★ Advanced | 4 = ★★★★ Sphinx
 
+export type AnswerType = "numeric" | "text" | "choice" | "self-check";
+
 export interface Task {
   /** Номер задачи в исходном уроке (например, "5" или "11") */
   number: string;
@@ -15,6 +17,10 @@ export interface Task {
   difficulty: Difficulty;
   /** Номер секции внутри урока (Часть I → 1, Часть II → 2 и т.п.) */
   section?: string;
+  /** Эталонный ответ (если можно извлечь из секции «Ответы») */
+  expectedAnswer?: string;
+  /** Какой тип проверки применять */
+  answerType?: AnswerType;
 }
 
 export interface TaskSection {
@@ -40,6 +46,10 @@ export interface SphinxFinal {
   heading: string;
   /** Текст задачи в Markdown */
   text: string;
+  /** Эталонный ответ Sphinx (одиночный) */
+  expectedAnswer?: string;
+  /** Тип проверки */
+  answerType?: AnswerType;
 }
 
 export interface Lesson {
