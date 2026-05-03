@@ -312,12 +312,23 @@ if (lesson.sphinx?.expectedAnswer) totalCheckable++;
     }
 
     btn.addEventListener("click", () => {
+      const wasCompleted = !!getLessonProgress(moduleId, lessonId)?.completed;
       setLessonProgress(moduleId, lessonId, {
         completed: true,
         percent: 100,
       });
       if (isFinal) {
         setModuleCompleted(moduleId);
+        // Запоминаем «только что открыли» — для подсветки в коллекции и эмблеме
+        try {
+          sessionStorage.setItem("9moons.justUnlocked", String(moduleId));
+        } catch {}
+        // Триггерим церемонию (только если впервые)
+        if (!wasCompleted) {
+          window.dispatchEvent(
+            new CustomEvent("9moons:ceremony", { detail: { moduleId } })
+          );
+        }
       }
       btn.textContent = "✓ Урок пройден";
       btn.classList.add("border-9m-gold/60", "text-9m-gold");

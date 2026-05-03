@@ -1,11 +1,14 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
-import { ARTIFACTS } from "@/data/world.ts";
+import { ARTIFACTS, getModule } from "@/data/world.ts";
+import { assetUrl, placeholderSVG } from "@/lib/assets.ts";
 ---
 
 <BaseLayout title="Коллекция">
   <header class="mb-8 space-y-2">
-    <p class="text-sm uppercase tracking-[0.3em] text-9m-fog">Артефакты Лены</p>
+    <p class="text-sm uppercase tracking-[0.3em] text-9m-fog">
+      Артефакты Лены
+    </p>
     <h1 class="font-display text-4xl font-medium text-9m-silver">Коллекция</h1>
     <p class="text-9m-fog">
       9 Лунных Камней, Перо Адепта, Кристалл Аксиом и Печать.
@@ -15,36 +18,49 @@ import { ARTIFACTS } from "@/data/world.ts";
 
   <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" id="artifact-grid">
     {
-      ARTIFACTS.map((a) => (
-        <div
-          class="task-card relative overflow-hidden"
-          data-artifact={a.id}
-          data-module={a.fromModule}
-        >
+      ARTIFACTS.map((a) => {
+        const mod = getModule(a.fromModule);
+        const fallback = placeholderSVG(a.nameRu, a.colour);
+        const png = assetUrl("artifacts", a.id);
+        return (
           <div
-            class="absolute inset-x-0 top-0 h-1"
-            style={`background-color: ${a.colour}`}
-          />
-          <div class="flex items-start justify-between gap-3 pt-2">
-            <div>
-              <p class="text-xs uppercase tracking-widest text-9m-fog">
-                Модуль {a.fromModule}
-              </p>
-              <h3 class="font-display text-lg text-9m-silver">{a.nameRu}</h3>
-            </div>
+            class="task-card relative overflow-hidden transition-all"
+            data-artifact={a.id}
+            data-module={a.fromModule}
+          >
+            {/* Цветная полоска сверху */}
             <div
-              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full opacity-30 transition-opacity"
-              style={`background-color: ${a.colour}; color: ${a.colour}`}
-              data-artifact-icon
-            >
-              <span class="text-2xl">🌙</span>
+              class="absolute inset-x-0 top-0 h-1"
+              style={`background-color: ${a.colour}`}
+            />
+
+            <div class="flex items-start justify-between gap-3 pt-2">
+              <div class="flex-1">
+                <p class="text-xs uppercase tracking-widest text-9m-fog">
+                  Модуль {a.fromModule} · {mod?.shortTitle}
+                </p>
+                <h3 class="font-display text-lg text-9m-silver">{a.nameRu}</h3>
+              </div>
+              <div
+                class="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full transition-opacity"
+                data-artifact-icon
+              >
+                <img
+                  src={png}
+                  data-fallback={fallback}
+                  alt={a.nameRu}
+                  loading="lazy"
+                  class="h-full w-full rounded-full object-contain opacity-30 grayscale transition-all duration-500"
+                  onerror="if(this.src!==this.dataset.fallback){this.src=this.dataset.fallback;}"
+                />
+              </div>
             </div>
+            <p class="mt-3 text-sm text-9m-fog" data-artifact-status>
+              Не открыт
+            </p>
           </div>
-          <p class="mt-3 text-sm text-9m-fog" data-artifact-status>
-            Не открыт
-          </p>
-        </div>
-      ))
+        );
+      })
     }
   </section>
 </BaseLayout>
@@ -52,20 +68,44 @@ import { ARTIFACTS } from "@/data/world.ts";
 <script>
   import { loadProgress } from "@lib/progress.ts";
 
-  const data = loadProgress();
-  document.querySelectorAll<HTMLElement>("[data-artifact]").forEach((el) => {
-    const moduleId = el.dataset.module;
-    if (!moduleId) return;
-    const completed = data.modules[moduleId]?.completed;
-    const status = el.querySelector<HTMLElement>("[data-artifact-status]");
-    const icon = el.querySelector<HTMLElement>("[data-artifact-icon]");
-    if (completed) {
-      el.classList.add("ring-1", "ring-9m-gold/40");
-      if (status) {
-        status.textContent = "✓ Получен";
-        status.classList.add("text-9m-gold");
+  function paintCollection(): void {
+    const data = loadProgress();
+    let justUnlocked: string | null = null;
+    try {
+      justUnlocked = sessionStorage.getItem("9moons.justUnlocked");
+    } catch {}
+
+    document.querySelectorAll<HTMLElement>("[data-artifact]").forEach((el) => {
+      const moduleId = el.dataset.module;
+      if (!moduleId) return;
+      const completed = data.modules?.[moduleId]?.completed;
+      const status = el.querySelector<HTMLElement>("[data-artifact-status]");
+      const img = el.querySelector<HTMLImageElement>("img");
+      if (completed) {
+        el.classList.add("ring-1", "ring-9m-gold/40");
+        if (status) {
+          status.textContent = "✓ Получен";
+          status.classList.add("text-9m-gold");
+          status.classList.remove("text-9m-fog");
+        }
+        if (img) {
+          img.classList.remove("opacity-30", "grayscale");
+          img.classList.add("opacity-100");
+        }
+        // Свежий артефакт — анимация
+        if (justUnlocked === moduleId) {
+          el.classList.add("animate-pop", "ring-2", "ring-9m-gold");
+          el.style.boxShadow = `0 0 32px rgba(245,158,11,0.35)`;
+          // снимаем флаг чтобы не повторялось
+          try {
+            sessionStorage.removeItem("9moons.justUnlocked");
+          } catch {}
+        }
       }
-      if (icon) icon.classList.replace("opacity-30", "opacity-100");
-    }
-  });
+    });
+  }
+
+  paintCollection();
+  window.addEventListener("storage", paintCollection);
+  window.addEventListener("focus", paintCollection);
 </script>

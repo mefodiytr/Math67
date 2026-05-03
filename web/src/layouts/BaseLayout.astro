@@ -1,6 +1,7 @@
 ---
 import "@/styles/globals.css";
 import EmblemCorner from "@components/world/EmblemCorner.astro";
+import CeremonyHost from "@components/interactive/CeremonyHost.tsx";
 
 interface Props {
   title: string;
@@ -108,6 +109,9 @@ const navLinks: Array<{ href: string; label: string }> = [
     </main>
 
     <EmblemCorner />
+
+    {/* Хост церемонии — слушает window event "9moons:ceremony" */}
+    <CeremonyHost client:only="react" />
 
     <footer class="mt-16 border-t border-9m-silver/10 py-6 text-center text-xs text-9m-fog">
       <p class="px-4">

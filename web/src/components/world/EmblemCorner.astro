@@ -6,6 +6,31 @@
  */
 ---
 
+<style is:global>
+  /* Анимация для свежезажжённой Луны */
+  .emblem-moon-fresh {
+    animation: emblem-moon-burst 1.6s ease-out 1;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+  @keyframes emblem-moon-burst {
+    0% {
+      r: 3;
+      opacity: 1;
+    }
+    30% {
+      r: 5.5;
+      opacity: 1;
+    }
+    60% {
+      r: 4;
+    }
+    100% {
+      r: 3;
+    }
+  }
+</style>
+
 <div class="emblem-corner pointer-events-none fixed bottom-4 right-4 z-20 select-none">
   <a
     href="/collection"
@@ -117,12 +142,22 @@
   }
 
   function paintMoons(stage: number): void {
+    let just: string | null = null;
+    try {
+      just = sessionStorage.getItem("9moons.justUnlocked");
+    } catch {}
+    const justNum = just !== null ? parseInt(just, 10) : -1;
+
     const moons = document.querySelectorAll<SVGCircleElement>("#emblem-moons circle");
     moons.forEach((m, idx) => {
       const moonIdx = idx + 1;
+      m.classList.remove("emblem-moon-fresh");
       if (moonIdx <= stage) {
         m.setAttribute("fill", MODULE_COLOURS[moonIdx] ?? "#E2E8F0");
         m.setAttribute("filter", "drop-shadow(0 0 2px currentColor)");
+        if (moonIdx === justNum) {
+          m.classList.add("emblem-moon-fresh");
+        }
       } else {
         m.setAttribute("fill", "rgba(148,163,184,0.25)");
         m.removeAttribute("filter");
