@@ -1,0 +1,146 @@
+---
+/**
+ * Простейший inline-рендер Markdown в HTML.
+ * Используем remark/rehype через встроенный pipeline Astro:
+ * Astro не даёт «просто отрендерить строку», поэтому делаем
+ * минимальную замену через regex для нашего ограниченного набора.
+ *
+ * Поддерживаем: жирный, курсив, инлайновый код, ссылки, переносы, цитаты.
+ * Для $...$ и $$...$$ нужно использовать KaTeX runtime — его подключаем,
+ * если в строке найдены формулы.
+ */
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function inlineMd(s: string): string {
+  let out = escapeHtml(s);
+
+  // inline code
+  out = out.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+  // bold + italic combined
+  out = out.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
+  // bold
+  out = out.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  // italic
+  out = out.replace(/(?<![A-Za-z])\*(.+?)\*(?![A-Za-z])/g, "<em>$1</em>");
+  out = out.replace(/(?<![A-Za-z])_(.+?)_(?![A-Za-z])/g, "<em>$1</em>");
+
+  // links
+  out = out.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    '<a href="$2" rel="noopener">$1</a>'
+  );
+
+  // raw $...$ — KaTeX (через runtime)
+  // Оставляем как есть, KaTeX-runtime обработает в client-script.
+  return out;
+}
+
+function blockMd(input: string): string {
+  const lines = input.split("\n");
+  const out: string[] = [];
+  let inList: "ol" | "ul" | null = null;
+  let buf: string[] = [];
+
+  const flushBuf = () => {
+    if (buf.length) {
+      out.push(`<p>${inlineMd(buf.join(" "))}</p>`);
+      buf = [];
+    }
+  };
+  const flushList = () => {
+    if (inList) {
+      out.push(`</${inList}>`);
+      inList = null;
+    }
+  };
+
+  for (const raw of lines) {
+    const line = raw.trimEnd();
+    if (line.trim() === "") {
+      flushBuf();
+      flushList();
+      continue;
+    }
+    // ordered list
+    const ol = line.match(/^(\d+)\.\s+(.*)$/);
+    if (ol) {
+      flushBuf();
+      if (inList !== "ol") {
+        flushList();
+        out.push("<ol>");
+        inList = "ol";
+      }
+      out.push(`<li>${inlineMd(ol[2])}</li>`);
+      continue;
+    }
+    // unordered list
+    const ul = line.match(/^[-*]\s+(.*)$/);
+    if (ul) {
+      flushBuf();
+      if (inList !== "ul") {
+        flushList();
+        out.push("<ul>");
+        inList = "ul";
+      }
+      out.push(`<li>${inlineMd(ul[1])}</li>`);
+      continue;
+    }
+    // blockquote
+    if (line.startsWith(">")) {
+      flushBuf();
+      flushList();
+      const inner = line.replace(/^>\s?/, "");
+      out.push(`<blockquote>${inlineMd(inner)}</blockquote>`);
+      continue;
+    }
+    // h3
+    if (line.startsWith("### ")) {
+      flushBuf();
+      flushList();
+      out.push(`<h3>${inlineMd(line.slice(4))}</h3>`);
+      continue;
+    }
+    // table — не парсим тут (упрощение); будет в Phase 2 при необходимости
+    flushList();
+    buf.push(line);
+  }
+  flushBuf();
+  flushList();
+  return out.join("\n");
+}
+
+const html = blockMd(text ?? "");
+---
+
+<div class="prose-lesson" set:html={html}></div>
+
+<script>
+  // Подключаем KaTeX-runtime для обработки $...$ внутри уже отрендеренного HTML.
+  // Загружаем только если на странице есть формулы.
+  const hasFormulas = /\$[^$\n]+\$|\$\$[\s\S]+?\$\$/.test(document.body.textContent ?? "");
+  if (hasFormulas) {
+    import("katex/contrib/auto-render").then(({ default: renderMathInElement }) => {
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false },
+        ],
+        throwOnError: false,
+        strict: false,
+      });
+    });
+  }
+</script>

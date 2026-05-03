@@ -1,0 +1,48 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import LessonView from "@components/lesson/LessonView.astro";
+import { MODULES } from "@/data/world.ts";
+import { loadModule, loadLesson } from "@/lib/parse-lesson.ts";
+
+export function getStaticPaths() {
+  const paths: Array<{
+    params: { mid: string; lid: string };
+    props: { lessonRef: { moduleId: number; lessonId: number } };
+  }> = [];
+
+  for (const m of MODULES) {
+    const lessons = loadModule(m.id);
+    for (const l of lessons) {
+      paths.push({
+        params: { mid: String(m.id), lid: String(l.lessonId) },
+        props: { lessonRef: { moduleId: m.id, lessonId: l.lessonId } },
+      });
+    }
+  }
+  return paths;
+}
+
+const { lessonRef } = Astro.props as { lessonRef: { moduleId: number; lessonId: number } };
+const lesson = loadLesson(lessonRef.moduleId, lessonRef.lessonId);
+if (!lesson) {
+  return Astro.redirect("/");
+}
+---
+
+<BaseLayout title={`${lesson.moduleId}.${lesson.lessonId} — ${lesson.shortTitle}`}>
+  <LessonView lesson={lesson} />
+</BaseLayout>
+
+<script>
+  import { setLessonProgress } from "@lib/progress.ts";
+
+  // Помечаем урок как «открытый» при загрузке.
+  const path = window.location.pathname.match(/\/lesson\/(\d+)\/(\d+)/);
+  if (path) {
+    const moduleId = parseInt(path[1], 10);
+    const lessonId = parseInt(path[2], 10);
+    setLessonProgress(moduleId, lessonId, {
+      lastVisited: new Date().toISOString(),
+    });
+  }
+</script>

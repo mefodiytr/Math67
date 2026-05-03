@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────── KaTeX ─────────────────────────── */
+@import "katex/dist/katex.min.css";
+
+/* ─────────────────────────── шрифты ───────────────────────────
+ * Локально не подключаем — берём системные. Лена откроет с Windows /
+ * Android, на обоих есть Inter / sans-serif fallback.
+ */
+
+/* ─────────────────────────── базовые ────────────────────────── */
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    @apply bg-9m-bg-deep text-9m-fg;
+    font-family:
+      "InterVariable",
+      "Inter",
+      system-ui,
+      -apple-system,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply min-h-screen antialiased;
+    background:
+      radial-gradient(ellipse at top, rgba(226, 232, 240, 0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(225, 29, 72, 0.04) 0%, transparent 50%),
+      linear-gradient(180deg, #0f172a 0%, #1e3a8a 100%);
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight text-9m-silver;
+  }
+
+  a {
+    @apply text-9m-teal underline-offset-4 transition-colors hover:text-9m-silver;
+  }
+
+  ::selection {
+    background: rgba(245, 158, 11, 0.3);
+  }
+}
+
+/* ─────────────────────────── компоненты ─────────────────────── */
+@layer components {
+  /* «Бумажный» свиток */
+  .paper {
+    @apply rounded-lg border border-9m-silver/10 bg-9m-charcoal/60 p-6 backdrop-blur-sm;
+    box-shadow:
+      0 0 0 1px rgba(226, 232, 240, 0.05),
+      0 24px 48px -16px rgba(15, 23, 42, 0.7);
+  }
+
+  /* Заголовок раздела с sumi-e подчёркиванием */
+  .section-heading {
+    @apply relative mb-4 inline-block font-display text-2xl font-medium text-9m-silver;
+  }
+  .section-heading::after {
+    content: "";
+    @apply absolute -bottom-2 left-0 h-[2px] w-full bg-gradient-to-r from-9m-silver/60 via-9m-teal/40 to-transparent;
+  }
+
+  /* Маркеры уровней */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium;
+  }
+  .badge-core {
+    @apply border-9m-core/40 bg-9m-core/10 text-9m-core;
+  }
+  .badge-strong {
+    @apply border-9m-strong/40 bg-9m-strong/10 text-9m-strong;
+  }
+  .badge-advanced {
+    @apply border-9m-advanced/40 bg-9m-advanced/10 text-9m-advanced;
+  }
+  .badge-sphinx {
+    @apply border-9m-sphinx/50 bg-9m-sphinx/15 text-9m-sphinx shadow-glow-gold;
+  }
+
+  /* Карточка задачи */
+  .task-card {
+    @apply rounded-md border border-9m-silver/10 bg-9m-bg-deep/60 p-4 transition-all;
+  }
+  .task-card:hover {
+    @apply border-9m-silver/25 bg-9m-bg-deep/80;
+  }
+
+  /* Кнопка-ссылка магического стиля */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-9m-silver/20 bg-9m-charcoal/40 px-4 py-2 text-9m-silver transition-all hover:border-9m-silver/50 hover:bg-9m-charcoal/70;
+    text-decoration: none;
+  }
+  .btn-primary {
+    @apply border-9m-gold/50 bg-9m-gold/10 text-9m-gold shadow-glow-gold hover:border-9m-gold/80 hover:bg-9m-gold/20;
+  }
+
+  /* Sumi-e декоративный разделитель */
+  .sumi-divider {
+    @apply my-8 h-px bg-gradient-to-r from-transparent via-9m-silver/30 to-transparent;
+  }
+}
+
+/* ─────────────────────────── prose-стиль для уроков ─────────── */
+.prose-lesson {
+  @apply text-9m-silver/95;
+  line-height: 1.7;
+}
+.prose-lesson p {
+  @apply mb-4;
+}
+.prose-lesson strong {
+  @apply font-semibold text-9m-silver;
+}
+.prose-lesson em {
+  @apply italic text-9m-silver/80;
+}
+.prose-lesson code {
+  @apply rounded bg-9m-charcoal px-1.5 py-0.5 text-9m-teal;
+  font-size: 0.95em;
+}
+.prose-lesson blockquote {
+  @apply my-4 border-l-2 border-9m-gold/60 pl-4 italic text-9m-silver/80;
+}
+.prose-lesson ol {
+  @apply my-3 list-decimal space-y-2 pl-6;
+}
+.prose-lesson ul {
+  @apply my-3 list-disc space-y-1 pl-6;
+}
+.prose-lesson table {
+  @apply my-4 w-full border-collapse text-sm;
+}
+.prose-lesson th {
+  @apply border border-9m-silver/15 bg-9m-charcoal/70 px-3 py-2 text-left;
+}
+.prose-lesson td {
+  @apply border border-9m-silver/10 px-3 py-2;
+}
+.prose-lesson hr {
+  @apply my-6 border-9m-silver/15;
+}
+.prose-lesson a {
+  @apply text-9m-teal underline decoration-9m-teal/40 underline-offset-2 hover:text-9m-silver;
+}
+.prose-lesson .katex-display {
+  @apply my-4 overflow-x-auto;
+}
+
+/* English-блок (алый колокольчик) */
+.english-block {
+  @apply rounded-md border-l-4 border-9m-scarlet bg-9m-scarlet/5 p-4;
+}
+
+/* Sphinx-блок (золотая рамка) */
+.sphinx-block {
+  @apply relative rounded-md border-2 border-9m-gold/50 bg-9m-gold/5 p-5 shadow-glow-gold;
+}
+.sphinx-block::before {
+  content: "★★★★";
+  @apply absolute -top-3 left-4 bg-9m-bg-deep px-2 text-sm tracking-widest text-9m-gold;
+}

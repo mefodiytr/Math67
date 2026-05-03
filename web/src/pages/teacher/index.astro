@@ -1,0 +1,24 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Кабинет учителя">
+  <header class="mb-8 space-y-2">
+    <p class="text-sm uppercase tracking-[0.3em] text-9m-fog">Учитель</p>
+    <h1 class="font-display text-4xl font-medium text-9m-silver">Кабинет</h1>
+    <p class="text-9m-fog">
+      Дневник прогресса, шкалы 1–5, заметки. В Phase 5 здесь будет полный workspace.
+    </p>
+  </header>
+
+  <section class="paper">
+    <h2 class="section-heading">Что будет здесь</h2>
+    <ul class="space-y-2 text-9m-silver/85">
+      <li>📋 Дневник: после каждого урока — шкалы 1–5 по темам.</li>
+      <li>📝 Заметки к уроку (что ученица поняла, что нет).</li>
+      <li>📊 История прогресса по модулям.</li>
+      <li>📥 Экспорт в CSV / PDF.</li>
+      <li>🌙 Кнопка «отметить модуль завершённым» — загорается следующая Луна на эмблеме.</li>
+    </ul>
+  </section>
+</BaseLayout>

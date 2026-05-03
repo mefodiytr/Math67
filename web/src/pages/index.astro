@@ -1,0 +1,57 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import WorldMap from "@components/world/WorldMap.astro";
+import { MODULES } from "@/data/world.ts";
+
+const totalLessons = MODULES.reduce((s, m) => s + m.lessonsCount, 0);
+---
+
+<BaseLayout title="Карта мира">
+  <section class="space-y-4 text-center">
+    <p class="text-sm uppercase tracking-[0.3em] text-9m-fog">Феликсия</p>
+    <h1 class="font-display text-5xl font-medium leading-tight text-9m-silver md:text-6xl">
+      Академия Девяти Лун
+    </h1>
+    <p class="mx-auto max-w-2xl text-lg text-9m-silver/80">
+      13 островов · {totalLessons} уроков · Лена идёт от{" "}
+      <span class="text-9m-lotus">дробей</span> к{" "}
+      <span class="text-9m-gold">квадратным уравнениям</span>,{" "}
+      <span class="text-9m-silver">доказательствам</span> и{" "}
+      <span class="text-9m-scarlet">Печати Адепта</span>.
+    </p>
+  </section>
+
+  <div class="my-8">
+    <WorldMap />
+  </div>
+
+  {/* Сводная таблица модулей */}
+  <section class="paper">
+    <h2 class="section-heading mb-6">13 модулей курса</h2>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        MODULES.map((m) => (
+          <a
+            href={`/module/${m.id}`}
+            class="task-card group flex items-start gap-3 no-underline"
+            style={`border-left: 3px solid ${m.primaryColour}`}
+          >
+            <span
+              class="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-display text-sm font-medium text-9m-charcoal"
+              style={`background-color: ${m.primaryColour}`}
+            >
+              {m.id}
+            </span>
+            <div class="flex-1 space-y-1">
+              <h3 class="font-display text-lg text-9m-silver group-hover:text-9m-gold">
+                {m.shortTitle}
+              </h3>
+              <p class="text-sm text-9m-fog">{m.tagline}</p>
+              <p class="text-xs text-9m-mute">{m.lessonsCount} уроков</p>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

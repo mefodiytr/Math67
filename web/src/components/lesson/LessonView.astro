@@ -1,0 +1,201 @@
+---
+import type { Lesson } from "@/lib/types.ts";
+import { getModule, getCharacter } from "@/data/world.ts";
+import DifficultyBadge from "./DifficultyBadge.astro";
+import Markdown from "./Markdown.astro";
+
+interface Props {
+  lesson: Lesson;
+}
+const { lesson } = Astro.props;
+const mod = getModule(lesson.moduleId);
+const curator = lesson.curator ? getCharacter(lesson.curator) : undefined;
+
+// Соседи — для навигации «← пред / след →»
+const prevId = lesson.lessonId > 1 ? lesson.lessonId - 1 : null;
+const nextId =
+  mod && lesson.lessonId < mod.lessonsCount ? lesson.lessonId + 1 : null;
+---
+
+<article class="space-y-8 pb-12">
+  {/* Хлебные крошки + мета */}
+  <nav class="flex flex-wrap items-center gap-2 text-sm text-9m-fog">
+    <a href="/" class="text-9m-fog no-underline hover:text-9m-silver">Карта</a>
+    <span aria-hidden="true">›</span>
+    <a
+      href={`/module/${lesson.moduleId}`}
+      class="text-9m-fog no-underline hover:text-9m-silver"
+    >
+      {mod?.shortTitle ?? `Модуль ${lesson.moduleId}`}
+    </a>
+    <span aria-hidden="true">›</span>
+    <span class="text-9m-silver">Урок {lesson.moduleId}.{lesson.lessonId}</span>
+  </nav>
+
+  {/* Заголовок урока */}
+  <header class="space-y-3">
+    <p class="text-sm uppercase tracking-widest text-9m-fog">
+      Модуль {lesson.moduleId} · Урок {lesson.lessonId}
+    </p>
+    <h1 class="font-display text-4xl font-medium leading-tight text-9m-silver md:text-5xl">
+      {lesson.shortTitle}
+    </h1>
+    <div class="flex flex-wrap gap-3 text-sm text-9m-fog">
+      {lesson.duration && <span>⏱ {lesson.duration} мин</span>}
+      {curator && <span>👤 {curator.nameRu}</span>}
+      {mod?.shortTitle && (
+        <span style={`color: ${mod.primaryColour}`}>● {mod.shortTitle}</span>
+      )}
+    </div>
+  </header>
+
+  {/* Сюжет */}
+  {
+    lesson.story && (
+      <section class="paper">
+        <h2 class="section-heading">Сюжет</h2>
+        <Markdown text={lesson.story} />
+      </section>
+    )
+  }
+
+  {/* Идея */}
+  {
+    lesson.idea && (
+      <section class="paper">
+        <h2 class="section-heading">Идея</h2>
+        <Markdown text={lesson.idea} />
+      </section>
+    )
+  }
+
+  {/* Задачи по уровням */}
+  {
+    lesson.sections.map((sec) => (
+      <section class="paper">
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 class="section-heading m-0">{sec.heading.replace(/\(★+\)/g, "").trim()}</h2>
+          <DifficultyBadge level={sec.difficulty} />
+        </div>
+        {sec.tasks.length > 0 ? (
+          <ol class="space-y-3">
+            {sec.tasks.map((t) => (
+              <li class="task-card">
+                <div class="flex gap-3">
+                  <span class="font-display text-9m-gold">{t.number}.</span>
+                  <div class="flex-1">
+                    <Markdown text={t.text} />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p class="text-9m-fog">Без задач — текстовая часть.</p>
+        )}
+      </section>
+    ))
+  }
+
+  {/* Sphinx Challenge */}
+  {
+    lesson.sphinx && (
+      <section class="sphinx-block">
+        <h2 class="mb-3 font-display text-2xl text-9m-gold">{lesson.sphinx.heading}</h2>
+        <Markdown text={lesson.sphinx.text} />
+      </section>
+    )
+  }
+
+  {/* English block */}
+  {
+    lesson.english && (
+      <section class="paper">
+        <h2 class="section-heading flex items-center gap-2">
+          <span class="text-9m-scarlet">🔔</span>
+          English with the Bell Fairy
+        </h2>
+        <div class="english-block">
+          <Markdown text={lesson.english.text} />
+          {lesson.english.teacherTranslation && (
+            <details class="mt-4 cursor-pointer text-9m-fog">
+              <summary class="select-none font-medium">👀 Я учитель — показать перевод</summary>
+              <p class="mt-2 italic text-9m-silver/80">{lesson.english.teacherTranslation}</p>
+            </details>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  {/* Кошачий факт */}
+  {
+    lesson.catFact && (
+      <section class="paper">
+        <h2 class="section-heading">🐾 Кошачий факт</h2>
+        <Markdown text={lesson.catFact} />
+      </section>
+    )
+  }
+
+  {/* Рефлексия */}
+  {
+    lesson.reflection && (
+      <section class="paper">
+        <h2 class="section-heading">Рефлексия</h2>
+        <Markdown text={lesson.reflection} />
+      </section>
+    )
+  }
+
+  {/* Домашка */}
+  {
+    lesson.homework && (
+      <section class="paper">
+        <h2 class="section-heading">🌙 Домашний квест</h2>
+        <Markdown text={lesson.homework} />
+      </section>
+    )
+  }
+
+  {/* Ответы (под спойлером) */}
+  {
+    lesson.answers && (
+      <section class="paper">
+        <details>
+          <summary class="cursor-pointer select-none font-display text-lg text-9m-fog hover:text-9m-silver">
+            🗝 Ответы (для проверки)
+          </summary>
+          <div class="mt-4">
+            <Markdown text={lesson.answers} />
+          </div>
+        </details>
+      </section>
+    )
+  }
+
+  {/* Навигация */}
+  <nav class="flex items-center justify-between border-t border-9m-silver/10 pt-6">
+    {
+      prevId ? (
+        <a href={`/lesson/${lesson.moduleId}/${prevId}`} class="btn">
+          ← Предыдущий урок
+        </a>
+      ) : (
+        <span />
+      )
+    }
+    <a href={`/module/${lesson.moduleId}`} class="btn">
+      🗺 К уроку модуля
+    </a>
+    {
+      nextId ? (
+        <a href={`/lesson/${lesson.moduleId}/${nextId}`} class="btn btn-primary">
+          Следующий урок →
+        </a>
+      ) : (
+        <span />
+      )
+    }
+  </nav>
+</article>

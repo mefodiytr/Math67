@@ -1,0 +1,106 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { MODULES, getModule, getCharacter, getArtifact } from "@/data/world.ts";
+import { loadModule } from "@/lib/parse-lesson.ts";
+
+export function getStaticPaths() {
+  return MODULES.map((m) => ({ params: { mid: String(m.id) } }));
+}
+
+const { mid } = Astro.params;
+const moduleId = parseInt(mid!, 10);
+const mod = getModule(moduleId);
+if (!mod) {
+  return Astro.redirect("/");
+}
+
+const lessons = loadModule(moduleId);
+const curator = mod.primaryCuratorId ? getCharacter(mod.primaryCuratorId) : undefined;
+const artifact = mod.artifactId ? getArtifact(mod.artifactId) : undefined;
+---
+
+<BaseLayout title={mod.shortTitle}>
+  <nav class="mb-4 flex items-center gap-2 text-sm text-9m-fog">
+    <a href="/" class="text-9m-fog no-underline hover:text-9m-silver">Карта</a>
+    <span aria-hidden="true">›</span>
+    <span class="text-9m-silver">Модуль {mod.id}</span>
+  </nav>
+
+  <header class="mb-8 space-y-3">
+    <p class="text-sm uppercase tracking-[0.3em] text-9m-fog">Модуль {mod.id}</p>
+    <h1
+      class="font-display text-4xl font-medium leading-tight md:text-5xl"
+      style={`color: ${mod.primaryColour}`}
+    >
+      {mod.shortTitle}
+    </h1>
+    <p class="text-lg text-9m-silver/80">{mod.title}</p>
+    <p class="text-9m-fog">{mod.tagline}</p>
+
+    <div class="flex flex-wrap gap-3 pt-2 text-sm">
+      <span class="rounded-full border border-9m-silver/15 px-3 py-1 text-9m-fog">
+        {mod.lessonsCount} уроков
+      </span>
+      {
+        curator && (
+          <span class="rounded-full border border-9m-silver/15 px-3 py-1 text-9m-fog">
+            👤 Куратор: {curator.nameRu}
+          </span>
+        )
+      }
+      {
+        artifact && (
+          <span
+            class="rounded-full border px-3 py-1"
+            style={`border-color: ${artifact.colour}80; color: ${artifact.colour}`}
+          >
+            🌙 {artifact.nameRu}
+          </span>
+        )
+      }
+    </div>
+  </header>
+
+  {/* Список уроков */}
+  <section>
+    <h2 class="section-heading mb-6">Уроки</h2>
+    {
+      lessons.length === 0 ? (
+        <p class="text-9m-fog">
+          Уроки этого модуля ещё не добавлены в систему.
+        </p>
+      ) : (
+        <ol class="space-y-2">
+          {lessons.map((l) => (
+            <li>
+              <a
+                href={`/lesson/${l.moduleId}/${l.lessonId}`}
+                class="task-card flex items-start gap-4 no-underline transition-all hover:translate-x-0.5"
+              >
+                <span
+                  class="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-medium text-9m-charcoal"
+                  style={`background-color: ${mod.primaryColour}`}
+                >
+                  {l.lessonId}
+                </span>
+                <div class="flex-1">
+                  <h3 class="font-display text-lg text-9m-silver">
+                    {l.shortTitle}
+                  </h3>
+                  <div class="mt-1 flex flex-wrap gap-3 text-xs text-9m-fog">
+                    {l.duration && <span>⏱ {l.duration} мин</span>}
+                    <span>{l.sections.length} секций задач</span>
+                    {l.sphinx && (
+                      <span class="text-9m-gold">★★★★ Sphinx</span>
+                    )}
+                  </div>
+                </div>
+                <span class="text-9m-fog">→</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      )
+    }
+  </section>
+</BaseLayout>

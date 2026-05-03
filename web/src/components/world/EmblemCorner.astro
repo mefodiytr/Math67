@@ -1,0 +1,149 @@
+---
+/**
+ * Эмблема Лены в правом нижнем углу — всегда виден прогресс.
+ * Стадия (0..12) определяется на клиенте из localStorage.
+ * SVG генерируется здесь — 9 полумесяцев + опциональные перо/кристалл/кольцо.
+ */
+---
+
+<div class="emblem-corner pointer-events-none fixed bottom-4 right-4 z-20 select-none">
+  <a
+    href="/collection"
+    class="pointer-events-auto block rounded-full p-1 transition-transform hover:scale-110"
+    aria-label="Эмблема — открыть коллекцию"
+  >
+    <svg
+      id="emblem-svg"
+      viewBox="0 0 100 100"
+      class="h-16 w-16 drop-shadow-glow md:h-20 md:w-20"
+      data-stage="0"
+    >
+      <!-- крайнее кольцо: алое (Печать) — появляется на стадии 12 -->
+      <circle
+        id="emblem-seal"
+        cx="50"
+        cy="50"
+        r="48"
+        fill="none"
+        stroke="#E11D48"
+        stroke-width="2"
+        opacity="0"
+      />
+
+      <!-- основная серебряная рамка -->
+      <circle
+        cx="50"
+        cy="50"
+        r="42"
+        fill="rgba(15,23,42,0.85)"
+        stroke="#E2E8F0"
+        stroke-width="1.5"
+      />
+      <circle
+        cx="50"
+        cy="50"
+        r="38"
+        fill="none"
+        stroke="rgba(226,232,240,0.25)"
+        stroke-width="0.5"
+      />
+
+      <!-- 9 полумесяцев. Расставлены по часовой от 12 часов. -->
+      <g id="emblem-moons">
+        <!-- полумесяц = маленький кружок-путь со срезом. JS включит "горящие". -->
+      </g>
+
+      <!-- Перо (стадия 10+) -->
+      <g id="emblem-feather" opacity="0" transform="translate(50,50)">
+        <path
+          d="M -3 -22 Q 0 -28 3 -22 L 1 -8 L -1 -8 Z"
+          fill="#F8FAFC"
+          stroke="#94A3B8"
+          stroke-width="0.3"
+        />
+      </g>
+
+      <!-- Кристалл (стадия 11+) -->
+      <g id="emblem-crystal" opacity="0" transform="translate(50,50)">
+        <polygon
+          points="-3,18 0,14 3,18 3,24 0,28 -3,24"
+          fill="rgba(226,232,240,0.35)"
+          stroke="#E2E8F0"
+          stroke-width="0.4"
+        />
+      </g>
+
+      <!-- Центральный знак-точка (для эстетики) -->
+      <circle cx="50" cy="50" r="1.4" fill="#E2E8F0" opacity="0.6" />
+    </svg>
+  </a>
+</div>
+
+<script>
+  import { emblemStage, loadProgress } from "@lib/progress.ts";
+
+  // Цвета модулей (соответствуют colour-palette.md)
+  const MODULE_COLOURS: Record<number, string> = {
+    1: "#F472B6",
+    2: "#0EA5E9",
+    3: "#F59E0B",
+    4: "#E2E8F0",
+    5: "#E11D48",
+    6: "#F59E0B",
+    7: "#10B981",
+    8: "#7C3AED",
+    9: "#1E3A8A",
+  };
+
+  function buildMoons(): SVGGElement {
+    const ns = "http://www.w3.org/2000/svg";
+    const g = document.createElementNS(ns, "g");
+    const radius = 32;
+    const cx = 50;
+    const cy = 50;
+    for (let i = 0; i < 9; i++) {
+      const angle = (-90 + i * 40) * (Math.PI / 180); // от 12 часов, по часовой
+      const mx = cx + radius * Math.cos(angle);
+      const my = cy + radius * Math.sin(angle);
+      const moon = document.createElementNS(ns, "circle");
+      moon.setAttribute("cx", String(mx));
+      moon.setAttribute("cy", String(my));
+      moon.setAttribute("r", "3");
+      moon.setAttribute("fill", "rgba(148,163,184,0.25)");
+      moon.setAttribute("data-moon", String(i + 1));
+      g.appendChild(moon);
+    }
+    return g;
+  }
+
+  function paintMoons(stage: number): void {
+    const moons = document.querySelectorAll<SVGCircleElement>("#emblem-moons circle");
+    moons.forEach((m, idx) => {
+      const moonIdx = idx + 1;
+      if (moonIdx <= stage) {
+        m.setAttribute("fill", MODULE_COLOURS[moonIdx] ?? "#E2E8F0");
+        m.setAttribute("filter", "drop-shadow(0 0 2px currentColor)");
+      } else {
+        m.setAttribute("fill", "rgba(148,163,184,0.25)");
+        m.removeAttribute("filter");
+      }
+    });
+    document.getElementById("emblem-feather")?.setAttribute("opacity", stage >= 10 ? "1" : "0");
+    document.getElementById("emblem-crystal")?.setAttribute("opacity", stage >= 11 ? "1" : "0");
+    document.getElementById("emblem-seal")?.setAttribute("opacity", stage >= 12 ? "1" : "0");
+  }
+
+  function refresh(): void {
+    const moonsContainer = document.getElementById("emblem-moons");
+    if (!moonsContainer) return;
+    moonsContainer.innerHTML = "";
+    moonsContainer.appendChild(buildMoons());
+    const stage = emblemStage(loadProgress());
+    paintMoons(stage);
+    document.getElementById("emblem-svg")?.setAttribute("data-stage", String(stage));
+  }
+
+  refresh();
+  window.addEventListener("storage", refresh);
+  window.addEventListener("focus", refresh);
+</script>

@@ -1,0 +1,32 @@
+---
+import type { Difficulty } from "@/lib/types.ts";
+
+interface Props {
+  level: Difficulty;
+}
+const { level } = Astro.props;
+
+const labels: Record<Difficulty, string> = {
+  1: "Core",
+  2: "Strong",
+  3: "Advanced",
+  4: "Sphinx",
+};
+const stars: Record<Difficulty, string> = {
+  1: "★",
+  2: "★★",
+  3: "★★★",
+  4: "★★★★",
+};
+const klass: Record<Difficulty, string> = {
+  1: "badge badge-core",
+  2: "badge badge-strong",
+  3: "badge badge-advanced",
+  4: "badge badge-sphinx",
+};
+---
+
+<span class={klass[level]} aria-label={`Уровень ${labels[level]}`}>
+  <span aria-hidden="true">{stars[level]}</span>
+  <span class="hidden sm:inline">{labels[level]}</span>
+</span>

@@ -1,0 +1,125 @@
+---
+/**
+ * Карта мира Феликсии. SVG-схема 13 островов на индиго-небе.
+ * Каждый остров — кликабельная ссылка на /module/{id}.
+ */
+import { MODULES, ISLAND_POSITIONS } from "@/data/world.ts";
+---
+
+<div class="relative mx-auto w-full">
+  <svg
+    viewBox="0 0 1000 600"
+    class="block w-full max-w-5xl"
+    role="img"
+    aria-label="Карта мира Феликсии — 13 островов курса"
+  >
+    <!-- Фоновое звёздное небо -->
+    <defs>
+      <radialGradient id="skyGradient" cx="50%" cy="0%" r="100%">
+        <stop offset="0%" stop-color="#1E3A8A" stop-opacity="0.5" />
+        <stop offset="100%" stop-color="#0F172A" stop-opacity="0.9" />
+      </radialGradient>
+      <filter id="islandGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="3" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+
+    <rect width="1000" height="600" fill="url(#skyGradient)" rx="12" />
+
+    <!-- Лёгкая sumi-e волна снизу -->
+    <path
+      d="M 0 540 Q 250 510 500 535 T 1000 530 L 1000 600 L 0 600 Z"
+      fill="rgba(226,232,240,0.04)"
+    />
+
+    <!-- Звёзды-точки (статически расставлены) -->
+    <g fill="#E2E8F0" opacity="0.4">
+      <circle cx="80" cy="60" r="0.8" />
+      <circle cx="320" cy="40" r="1" />
+      <circle cx="560" cy="70" r="0.6" />
+      <circle cx="780" cy="50" r="0.9" />
+      <circle cx="900" cy="100" r="0.7" />
+      <circle cx="180" cy="280" r="0.6" />
+      <circle cx="630" cy="300" r="0.8" />
+      <circle cx="940" cy="430" r="0.7" />
+    </g>
+
+    <!-- Соединительные пунктирные линии: путь через все острова -->
+    <g
+      stroke="rgba(226,232,240,0.15)"
+      stroke-width="1"
+      stroke-dasharray="4 6"
+      fill="none"
+    >
+      {
+        MODULES.slice(0, -1).map((m, idx) => {
+          const a = ISLAND_POSITIONS[m.id];
+          const b = ISLAND_POSITIONS[MODULES[idx + 1].id];
+          if (!a || !b) return null;
+          return <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} />;
+        })
+      }
+    </g>
+
+    <!-- Острова -->
+    {
+      MODULES.map((m) => {
+        const pos = ISLAND_POSITIONS[m.id];
+        if (!pos) return null;
+        return (
+          <a href={`/module/${m.id}`} class="island-link">
+            <g transform={`translate(${pos.x},${pos.y})`} filter="url(#islandGlow)">
+              <circle
+                r="32"
+                fill={m.primaryColour}
+                fill-opacity="0.18"
+                stroke={m.primaryColour}
+                stroke-width="1.5"
+                class="island-circle"
+              />
+              <circle
+                r="22"
+                fill={m.primaryColour}
+                fill-opacity="0.35"
+                class="island-inner"
+              />
+              <text
+                text-anchor="middle"
+                dominant-baseline="central"
+                class="fill-9m-silver text-base font-medium"
+                font-size="14"
+              >
+                {m.id}
+              </text>
+              <text
+                text-anchor="middle"
+                y="52"
+                class="fill-9m-fog"
+                font-size="11"
+              >
+                {m.shortTitle}
+              </text>
+            </g>
+          </a>
+        );
+      })
+    }
+  </svg>
+</div>
+
+<style>
+  .island-link {
+    cursor: pointer;
+  }
+  .island-link:hover .island-circle {
+    fill-opacity: 0.4;
+    transition: fill-opacity 0.2s ease;
+  }
+  .island-link:hover .island-inner {
+    fill-opacity: 0.7;
+  }
+</style>

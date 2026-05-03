@@ -1,0 +1,60 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { MODULES } from "@/data/world.ts";
+---
+
+<BaseLayout title="Прогресс">
+  <header class="mb-8 space-y-2">
+    <p class="text-sm uppercase tracking-[0.3em] text-9m-fog">Карта навыков</p>
+    <h1 class="font-display text-4xl font-medium text-9m-silver">Твой прогресс</h1>
+    <p class="text-9m-fog">
+      Здесь будет радарная диаграмма по 12 темам и история уроков (Phase 6).
+    </p>
+  </header>
+
+  <section class="paper">
+    <h2 class="section-heading">По модулям</h2>
+    <div id="progress-grid" class="grid gap-3 sm:grid-cols-2">
+      {
+        MODULES.map((m) => (
+          <div
+            class="task-card flex items-center justify-between"
+            data-module={m.id}
+          >
+            <div class="flex items-center gap-3">
+              <span
+                class="flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium text-9m-charcoal"
+                style={`background-color: ${m.primaryColour}`}
+              >
+                {m.id}
+              </span>
+              <span class="text-9m-silver">{m.shortTitle}</span>
+            </div>
+            <span class="text-sm text-9m-fog" data-module-status>—</span>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { loadProgress } from "@lib/progress.ts";
+
+  const data = loadProgress();
+  document.querySelectorAll<HTMLElement>("[data-module]").forEach((el) => {
+    const id = el.dataset.module;
+    if (!id) return;
+    const m = data.modules[id];
+    const status = el.querySelector<HTMLElement>("[data-module-status]");
+    if (!status) return;
+    if (m?.completed) {
+      status.textContent = "✓ пройден";
+      status.classList.add("text-9m-gold");
+    } else {
+      // Сколько уроков посещено
+      const visited = Object.keys(data.lessons).filter((k) => k.startsWith(`${id}.`)).length;
+      status.textContent = visited > 0 ? `${visited} уроков посещено` : "не начат";
+    }
+  });
+</script>
