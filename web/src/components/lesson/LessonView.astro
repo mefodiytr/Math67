@@ -131,27 +131,26 @@ if (lesson.sphinx?.expectedAnswer) totalCheckable++;
           {lesson.sphinx.heading}
         </h2>
         <Markdown text={lesson.sphinx.text} />
-        {lesson.sphinx.expectedAnswer ? (
-          lesson.sphinx.answerType === "numeric" ||
-          lesson.sphinx.answerType === "choice" ? (
-            <TaskInput
-              client:load
-              moduleId={lesson.moduleId}
-              lessonId={lesson.lessonId}
-              taskNumber="sphinx"
-              expectedAnswer={lesson.sphinx.expectedAnswer}
-              answerType={lesson.sphinx.answerType}
-            />
-          ) : (
-            <SelfCheck
-              client:load
-              moduleId={lesson.moduleId}
-              lessonId={lesson.lessonId}
-              taskNumber="sphinx"
-              expectedAnswer={lesson.sphinx.expectedAnswer}
-            />
-          )
-        ) : null}
+        {lesson.sphinx.expectedAnswer &&
+        (lesson.sphinx.answerType === "numeric" ||
+          lesson.sphinx.answerType === "choice") ? (
+          <TaskInput
+            client:load
+            moduleId={lesson.moduleId}
+            lessonId={lesson.lessonId}
+            taskNumber="sphinx"
+            expectedAnswer={lesson.sphinx.expectedAnswer}
+            answerType={lesson.sphinx.answerType}
+          />
+        ) : (
+          <SelfCheck
+            client:load
+            moduleId={lesson.moduleId}
+            lessonId={lesson.lessonId}
+            taskNumber="sphinx"
+            expectedAnswer={lesson.sphinx.expectedAnswer}
+          />
+        )}
       </section>
     )
   }
