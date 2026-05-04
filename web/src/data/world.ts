@@ -1,6 +1,6 @@
 /**
  * Каноническая структура мира «Феликсия — Академия Девяти Лун».
- * Источник: ../../stories/, ../../assets/*/_index.yaml, world-bible.md
+ * Источник: ../../stories/, ../../assets/<category>/_index.yaml, world-bible.md
  */
 
 import type { ModuleInfo, CharacterInfo, ArtifactInfo, LocationInfo } from "@/lib/types.ts";
