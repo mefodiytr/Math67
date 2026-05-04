@@ -8,9 +8,11 @@ import { useEffect, useRef, useState } from "react";
 import {
   getTaskAttempt,
   setTaskAttempt,
+  bumpStreak,
   type TaskStatus,
 } from "../../lib/progress.ts";
 import { checkAnswer, type AnswerType } from "../../lib/answers.ts";
+import Burst from "./Burst.tsx";
 
 export interface TaskInputProps {
   moduleId: number;
@@ -33,6 +35,7 @@ export default function TaskInput({
   const [hint, setHint] = useState<string | null>(null);
   const [attempts, setAttempts] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Восстанавливаем состояние из localStorage при монтировании
@@ -60,6 +63,8 @@ export default function TaskInput({
         attempts: nextAttempts,
         lastAnswer: trimmed,
       });
+      setBurstKey((k) => k + 1);
+      bumpStreak(true);
     } else {
       setStatus("wrong");
       setShake(true);
@@ -70,6 +75,7 @@ export default function TaskInput({
         attempts: nextAttempts,
         lastAnswer: trimmed,
       });
+      bumpStreak(false);
     }
   }
 
@@ -97,10 +103,11 @@ export default function TaskInput({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`mt-3 flex flex-wrap items-center gap-2 rounded-md bg-9m-bg-deep/40 p-2 transition-all ${ringClass} ${
+      className={`relative mt-3 flex flex-wrap items-center gap-2 rounded-md bg-9m-bg-deep/40 p-2 transition-all ${ringClass} ${
         shake ? "animate-shake" : ""
       }`}
     >
+      {status === "correct" && <Burst burstKey={burstKey} />}
       <input
         ref={inputRef}
         type={inputType}

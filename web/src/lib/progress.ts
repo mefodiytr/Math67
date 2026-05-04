@@ -40,6 +40,15 @@ export interface TaskAttempt {
   answeredAt?: string;
 }
 
+export interface StreakData {
+  /** Текущая серия правильных ответов подряд */
+  current: number;
+  /** Лучшая серия за всё время */
+  best: number;
+  /** Когда обновлялся (ISO) */
+  updatedAt?: string;
+}
+
 export interface CourseProgress {
   /** Прогресс по урокам: ключ = "M.L" (например, "8.12") */
   lessons: Record<string, LessonProgress>;
@@ -47,6 +56,8 @@ export interface CourseProgress {
   modules: Record<string, ModuleProgress>;
   /** Прогресс по задачам: ключ = "M.L.N" (например, "8.12.5") */
   tasks: Record<string, TaskAttempt>;
+  /** Серия правильных ответов */
+  streak: StreakData;
   /** Текущий урок (последний открытый) */
   currentLesson?: { moduleId: number; lessonId: number };
 }
@@ -55,6 +66,7 @@ const EMPTY: CourseProgress = {
   lessons: {},
   modules: {},
   tasks: {},
+  streak: { current: 0, best: 0 },
 };
 
 function isBrowser(): boolean {
@@ -72,7 +84,8 @@ export function loadProgress(): CourseProgress {
       ...parsed,
       lessons: parsed.lessons ?? {},
       modules: parsed.modules ?? {},
-      tasks: parsed.tasks ?? {}, // обратная совместимость с прошлой версией
+      tasks: parsed.tasks ?? {},
+      streak: parsed.streak ?? { current: 0, best: 0 },
     };
   } catch {
     return EMPTY;
@@ -247,4 +260,36 @@ export function emblemStage(p?: CourseProgress): number {
 export function resetProgress(): void {
   if (!isBrowser()) return;
   localStorage.removeItem(STORAGE_KEY);
+}
+
+// ───────────────────── streak (серия правильных) ─────────────────────
+
+/**
+ * Обновляет серию правильных ответов. Вызывается каждым TaskInput /
+ * ExpressionInput при `correct=true|false`.
+ *  - correct=true  → current++ (и best обновляется если current > best)
+ *  - correct=false → current сбрасывается до 0
+ */
+export function bumpStreak(correct: boolean): StreakData {
+  const all = loadProgress();
+  const s = all.streak ?? { current: 0, best: 0 };
+  if (correct) {
+    s.current += 1;
+    if (s.current > s.best) s.best = s.current;
+  } else {
+    s.current = 0;
+  }
+  s.updatedAt = new Date().toISOString();
+  all.streak = s;
+  saveProgress(all);
+  // Уведомляем UI через storage-event (он внутри той же вкладки не срабатывает,
+  // поэтому шлём ещё custom-event)
+  if (isBrowser()) {
+    window.dispatchEvent(new CustomEvent("9moons:streak", { detail: s }));
+  }
+  return s;
+}
+
+export function getStreak(): StreakData {
+  return loadProgress().streak ?? { current: 0, best: 0 };
 }

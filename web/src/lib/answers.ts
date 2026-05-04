@@ -14,7 +14,7 @@
  * и Домашки.
  */
 
-export type AnswerType = "numeric" | "text" | "choice" | "self-check";
+export type AnswerType = "numeric" | "text" | "choice" | "self-check" | "expression";
 
 /**
  * Извлекает map "номер задачи → эталонный ответ".
@@ -110,14 +110,24 @@ function stripTrailingPunct(s: string): string {
 const NUMERIC_RX = /^[+-]?\d+([.,]\d+)?(?:\s*[/⁄]\s*\d+([.,]\d+)?)?$/u;
 
 /**
+ * Шаблон «выражение = число» (например, "(1+2+3)·4 = 24" или "2·(3+4)−5 = 9").
+ * Это значит: задача — расставить скобки/знаки, чтобы получить число.
+ */
+const EXPRESSION_RX = /^[\d+\-*/()·×÷:^²³⁰¹⁴⁵⁶⁷⁸⁹\s.,−–—]+\s*=\s*[+-]?\d+([.,]\d+)?$/u;
+
+/**
  * По эталонному ответу определяет, можно ли его проверить автоматически.
  * - "12" / "0.5" / "5/8" / "−3" → numeric
+ * - "(1+2+3)·4 = 24" → expression (надо расставить знаки/скобки)
  * - "Да" / "Нет" → choice (yes/no)
  * - всё остальное → self-check (без авто-проверки)
  */
 export function detectAnswerType(answer: string, _taskText?: string): AnswerType {
   const a = answer.trim();
   if (!a) return "self-check";
+
+  // Выражение с целевым значением: "(1+2+3)·4 = 24"
+  if (EXPRESSION_RX.test(a)) return "expression";
 
   // Числа и простые дроби
   if (NUMERIC_RX.test(a)) return "numeric";
@@ -131,12 +141,25 @@ export function detectAnswerType(answer: string, _taskText?: string): AnswerType
   // Очень короткий ответ из 1-2 слов без формул — pass через self-check, чтобы
   // ученица сама сверила (не пытаемся быть слишком умными).
   if (a.length < 12 && /^[\dА-Яа-яA-Za-z\s+\-=,.()/]+$/.test(a)) {
-    // Если в ответе есть число и формула — лучше отдать numeric только если оно строгое.
     const onlyNum = NUMERIC_RX.test(a.replace(/^[xX\s=]+/, ""));
     if (onlyNum) return "numeric";
   }
 
   return "self-check";
+}
+
+/**
+ * Из expression-ответа «(1+2+3)·4 = 24» извлекает целевое число и пример выражения.
+ */
+export function parseExpressionTarget(answer: string): {
+  target: number;
+  reveal: string;
+} | null {
+  const m = answer.match(/^(.+?)\s*=\s*([+-]?\d+(?:[.,]\d+)?)$/u);
+  if (!m) return null;
+  const target = parseFloat(m[2].replace(",", "."));
+  if (isNaN(target)) return null;
+  return { target, reveal: m[1].trim() };
 }
 
 // ─────────────────── нормализация и проверка ────────────────────

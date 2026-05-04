@@ -19,7 +19,7 @@ const { moduleId, lessonId, totalCount } = Astro.props;
 >
   <div class="flex items-center justify-between gap-3">
     <div class="flex items-center gap-2 text-sm">
-      <span class="text-9m-fog">Прогресс урока:</span>
+      <span class="text-9m-fog">Прогресс:</span>
       <span class="font-medium text-9m-silver">
         <span data-solved>0</span> / {totalCount}
       </span>
@@ -33,7 +33,14 @@ const { moduleId, lessonId, totalCount } = Astro.props;
         />
       </div>
     </div>
-    <span class="hidden text-xs text-9m-fog sm:inline" data-pct>0%</span>
+    <span class="hidden text-xs text-9m-fog tabular-nums sm:inline" data-pct>0%</span>
+    <span
+      class="hidden items-center gap-1 rounded-full border border-9m-gold/40 bg-9m-gold/10 px-2 py-0.5 text-xs text-9m-gold sm:inline-flex"
+      data-streak
+      title="Серия правильных ответов подряд"
+    >
+      🔥 <span data-streak-num>0</span>
+    </span>
   </div>
 </div>
 
@@ -63,13 +70,26 @@ const { moduleId, lessonId, totalCount } = Astro.props;
       if (bar) bar.style.width = `${pct}%`;
       const pctEl = root.querySelector<HTMLElement>("[data-pct]");
       if (pctEl) pctEl.textContent = `${pct}%`;
+
+      // Streak
+      const streak = data.streak ?? { current: 0, best: 0 };
+      const streakEl = root.querySelector<HTMLElement>("[data-streak]");
+      const streakNum = root.querySelector<HTMLElement>("[data-streak-num]");
+      if (streakEl && streakNum) {
+        if (streak.current > 0) {
+          streakEl.style.display = "";
+          streakNum.textContent = String(streak.current);
+        } else {
+          streakEl.style.display = "none";
+        }
+      }
     }
 
     update();
-    // Обновляться при любом «storage» событии или фокусе таба
     window.addEventListener("storage", update);
     window.addEventListener("focus", update);
-    // И при клике в любую кнопку — лайтовая стратегия
     document.addEventListener("click", () => setTimeout(update, 100));
+    // Streak-event от компонентов в той же вкладке
+    window.addEventListener("9moons:streak", update);
   }
 </script>
