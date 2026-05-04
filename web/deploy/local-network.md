@@ -95,30 +95,36 @@ pnpm exec astro build      # вместо pnpm build
 
 ## 5. Запуск для локальной сети
 
-Astro в `package.json` уже настроен на `--host` (слушает все интерфейсы).
-
-### Вариант A — режим разработки (hot reload, удобно править на ходу)
-
-```bash
-pnpm dev
-```
-
-→ слушает на `http://0.0.0.0:4321`.
-
-### Вариант B — production preview (быстрее, рекомендую для постоянной работы)
+Удобнее всего — через скрипт `pnpm felicia`. Он сам определит твой LAN-IP
+(пропустит docker/tailscale/etc) и поднимет preview только на нём:
 
 ```bash
-pnpm preview --port 4321
+pnpm felicia
+# [felicia] preview на http://192.168.200.184:4321/
 ```
 
-→ тоже на `0.0.0.0:4321`, но раздаёт уже собранный `dist/` без
-перекомпиляции.
+### Если автоопределение взяло не тот IP
 
-### Сменить порт
+Зафиксируй явно:
 
 ```bash
-pnpm preview --port 8080
+LAN_IP=192.168.200.184 pnpm felicia
+PORT=8080 pnpm felicia                    # сменить порт
+LAN_IP=192.168.200.184 PORT=8080 pnpm felicia
 ```
+
+### Dev-режим (с hot reload)
+
+```bash
+pnpm felicia:dev
+```
+
+### Если надо слушать на ВСЕХ интерфейсах (старый способ)
+
+```bash
+pnpm preview --port 4321        # слушает на 0.0.0.0:4321
+```
+Печатает портянку всех адресов машины — менее удобно.
 
 ---
 
@@ -245,10 +251,9 @@ exec $SHELL
 nvm install 20 && corepack enable
 
 # Каждый раз
-git clone <git-url> ~/Felicia
+git clone git@github.com:mefodiytr/math67.git ~/Felicia
 cd ~/Felicia/web
 pnpm install
-pnpm build
-pnpm preview --port 4321
-# Открыть на планшете: http://<ip-mikl>:4321/
+pnpm felicia               # сам соберёт + поднимет на нужном IP
+# Открыть на планшете: ссылка из вывода (http://192.168.x.y:4321/)
 ```
