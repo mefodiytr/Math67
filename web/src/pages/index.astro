@@ -28,6 +28,7 @@ const guardians = CHARACTERS.filter((c) => c.id !== "lena").slice(0, 12);
     </p>
     <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
       <ContinueButton />
+      <a href="/lessons" class="btn">📚 Все уроки</a>
       <a href="/about" class="btn">О курсе</a>
       <a id="cert-link" href="/certificate" class="btn btn-primary hidden">
         🌟 Сертификат Адепта
@@ -48,7 +49,7 @@ const guardians = CHARACTERS.filter((c) => c.id !== "lena").slice(0, 12);
     <div class="mb-3 flex items-center justify-between px-2">
       <h2 class="font-display text-lg text-9m-silver md:text-xl">Острова Феликсии</h2>
       <p class="text-xs text-9m-fog md:text-sm">
-        ◯ Текущий остров пульсирует
+        Кликни на остров → попадёшь к урокам
       </p>
     </div>
     <WorldMap />

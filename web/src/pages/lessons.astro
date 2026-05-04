@@ -1,0 +1,203 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { MODULES } from "@/data/world.ts";
+import { loadModule } from "@/lib/parse-lesson.ts";
+
+// Собираем все уроки заранее на сервере (статически)
+const allLessons = MODULES.flatMap((m) =>
+  loadModule(m.id).map((l) => ({
+    moduleId: m.id,
+    moduleTitle: m.shortTitle,
+    moduleColour: m.primaryColour,
+    lessonId: l.lessonId,
+    title: l.shortTitle,
+    duration: l.duration ?? 90,
+    sections: l.sections.length,
+    hasSphinx: !!l.sphinx,
+    hasEnglish: !!l.english,
+  }))
+);
+---
+
+<BaseLayout title="Все уроки">
+  <header class="mb-6 space-y-2">
+    <p class="text-sm uppercase tracking-[0.3em] text-9m-fog">Список</p>
+    <h1 class="font-display text-4xl font-medium text-9m-silver">
+      Все уроки курса
+    </h1>
+    <p class="text-9m-fog">
+      {allLessons.length} уроков · 13 модулей. Кликни — откроется урок ученицы.
+    </p>
+  </header>
+
+  {/* Поиск */}
+  <div class="paper sticky top-16 z-10 mb-6">
+    <div class="flex flex-wrap items-center gap-3">
+      <label class="flex flex-1 items-center gap-2">
+        <span class="text-sm text-9m-fog">🔎</span>
+        <input
+          id="lesson-search"
+          type="text"
+          placeholder="Поиск по названию или номеру…"
+          class="flex-1 rounded-md border border-9m-silver/15 bg-9m-charcoal/50 px-3 py-2 text-9m-silver placeholder:text-9m-fog/50 focus:border-9m-silver/40 focus:outline-none"
+        />
+      </label>
+      <select
+        id="module-filter"
+        class="rounded-md border border-9m-silver/15 bg-9m-charcoal/50 px-3 py-2 text-9m-silver focus:border-9m-silver/40 focus:outline-none"
+      >
+        <option value="">Все модули</option>
+        {
+          MODULES.map((m) => (
+            <option value={String(m.id)}>
+              {m.id}. {m.shortTitle}
+            </option>
+          ))
+        }
+      </select>
+      <span id="lesson-count" class="text-sm text-9m-fog">
+        {allLessons.length} уроков
+      </span>
+    </div>
+  </div>
+
+  {/* Список — сгруппирован по модулям */}
+  <section>
+    {
+      MODULES.map((m) => {
+        const lessons = allLessons.filter((l) => l.moduleId === m.id);
+        if (lessons.length === 0) return null;
+        return (
+          <div class="mb-6 module-block" data-module-id={m.id}>
+            <h2
+              class="mb-2 flex items-center gap-3 font-display text-xl"
+              style={`color: ${m.primaryColour}`}
+            >
+              <span
+                class="flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium text-9m-charcoal"
+                style={`background-color: ${m.primaryColour}`}
+              >
+                {m.id}
+              </span>
+              {m.shortTitle}
+              <span class="text-xs text-9m-fog font-sans font-normal">
+                {lessons.length} уроков
+              </span>
+            </h2>
+            <ol class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {lessons.map((l) => (
+                <li class="lesson-item" data-search={`${l.moduleId}.${l.lessonId} ${l.title}`}>
+                  <a
+                    href={`/lesson/${l.moduleId}/${l.lessonId}`}
+                    class="task-card flex h-full items-start gap-3 no-underline transition-all hover:translate-x-0.5"
+                    data-lesson-key={`${l.moduleId}.${l.lessonId}`}
+                    style={`border-left: 2px solid ${m.primaryColour}`}
+                  >
+                    <span class="mt-1 shrink-0 font-display text-sm text-9m-fog">
+                      {l.moduleId}.{l.lessonId}
+                    </span>
+                    <div class="flex-1">
+                      <p class="text-sm text-9m-silver">{l.title}</p>
+                      <div class="mt-1 flex flex-wrap gap-2 text-xs text-9m-fog">
+                        <span>⏱ {l.duration} мин</span>
+                        {l.hasSphinx && <span class="text-9m-gold">★★★★</span>}
+                        {l.hasEnglish && (
+                          <span class="text-9m-scarlet">🔔</span>
+                        )}
+                      </div>
+                    </div>
+                    <span
+                      class="hidden text-9m-fog sm:block"
+                      data-lesson-status
+                    >
+                      →
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
+        );
+      })
+    }
+  </section>
+</BaseLayout>
+
+<script>
+  import { loadProgress } from "@lib/progress.ts";
+
+  function paintProgress(): void {
+    const data = loadProgress();
+    document.querySelectorAll<HTMLAnchorElement>("[data-lesson-key]").forEach(
+      (el) => {
+        const key = el.dataset.lessonKey;
+        if (!key) return;
+        const lp = data.lessons?.[key];
+        const status = el.querySelector<HTMLElement>("[data-lesson-status]");
+        if (!status) return;
+        if (lp?.completed) {
+          status.textContent = "✓";
+          status.classList.add("text-9m-gold");
+        } else if (lp?.lastVisited) {
+          status.textContent = "•";
+          status.classList.add("text-9m-teal");
+        }
+      }
+    );
+  }
+
+  function applyFilters(): void {
+    const search = (
+      document.getElementById("lesson-search") as HTMLInputElement | null
+    )?.value.toLowerCase().trim() || "";
+    const mod = (
+      document.getElementById("module-filter") as HTMLSelectElement | null
+    )?.value || "";
+
+    let visible = 0;
+    document
+      .querySelectorAll<HTMLElement>(".lesson-item")
+      .forEach((el) => {
+        const text = (el.dataset.search || "").toLowerCase();
+        const a = el.querySelector<HTMLAnchorElement>("a");
+        const key = a?.dataset.lessonKey || "";
+        const [mid] = key.split(".");
+        const matchesSearch = !search || text.includes(search);
+        const matchesModule = !mod || mid === mod;
+        const ok = matchesSearch && matchesModule;
+        el.style.display = ok ? "" : "none";
+        if (ok) visible++;
+      });
+
+    // Скрываем модульные блоки без видимых уроков
+    document
+      .querySelectorAll<HTMLElement>(".module-block")
+      .forEach((block) => {
+        const visibleChildren = Array.from(
+          block.querySelectorAll<HTMLElement>(".lesson-item")
+        ).some((it) => it.style.display !== "none");
+        block.style.display = visibleChildren ? "" : "none";
+      });
+
+    const counter = document.getElementById("lesson-count");
+    if (counter) {
+      counter.textContent = `${visible} уроков`;
+    }
+  }
+
+  paintProgress();
+  applyFilters();
+
+  document
+    .getElementById("lesson-search")
+    ?.addEventListener("input", applyFilters);
+  document
+    .getElementById("module-filter")
+    ?.addEventListener("change", applyFilters);
+
+  window.addEventListener("focus", () => {
+    paintProgress();
+    applyFilters();
+  });
+  window.addEventListener("storage", paintProgress);
+</script>
