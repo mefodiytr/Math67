@@ -11,7 +11,9 @@
       "@lib/*": ["src/lib/*"],
       "@data/*": ["src/data/*"]
     },
-    "allowImportingTsExtensions": false
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "types": ["node", "astro/client"]
   },
   "include": ["src/**/*", "astro.config.mjs", "tailwind.config.ts"],
   "exclude": ["dist", "node_modules"]

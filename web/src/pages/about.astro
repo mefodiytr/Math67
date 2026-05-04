@@ -3,7 +3,6 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import { MODULES, CHARACTERS, ARTIFACTS } from "@/data/world.ts";
 
 const totalLessons = MODULES.reduce((s, m) => s + m.lessonsCount, 0);
-const totalSphinx = MODULES.length; // у каждого модуля есть финальный sphinx
 ---
 
 <BaseLayout title="О курсе">

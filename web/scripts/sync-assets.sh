@@ -4,6 +4,7 @@
 # Включает только изображения (PNG/SVG/WebP) — не Markdown-промты.
 #
 # Запускается автоматически из package.json (predev / prebuild).
+# Не падает, если в ../assets/ нет картинок (на старте PNG ещё не сгенерены).
 
 set -euo pipefail
 
@@ -19,16 +20,29 @@ fi
 
 mkdir -p "$DST"
 
-# Копируем только изображения, исключая *.prompt.md и _index.yaml
-rsync -a \
-  --include='*/' \
-  --include='*.png' \
-  --include='*.jpg' \
-  --include='*.jpeg' \
-  --include='*.webp' \
-  --include='*.svg' \
-  --exclude='*' \
-  "$SRC/" "$DST/"
+if command -v rsync >/dev/null 2>&1; then
+  # Предпочтительный путь: rsync с фильтрами
+  rsync -a \
+    --include='*/' \
+    --include='*.png' \
+    --include='*.jpg' \
+    --include='*.jpeg' \
+    --include='*.webp' \
+    --include='*.svg' \
+    --exclude='*' \
+    "$SRC/" "$DST/"
+else
+  # Fallback на чистый shell, если rsync не установлен.
+  echo "[sync-assets] rsync не найден, использую cp-fallback."
+  cd "$SRC"
+  while IFS= read -r -d '' f; do
+    rel="${f#./}"
+    target="../web/$DST/$rel"
+    mkdir -p "$(dirname "$target")"
+    cp -f "$f" "$target"
+  done < <(find . -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.webp' -o -name '*.svg' \) -print0)
+  cd - >/dev/null
+fi
 
-count=$(find "$DST" -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.webp' -o -name '*.svg' \) | wc -l | tr -d ' ')
+count=$(find "$DST" -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.webp' -o -name '*.svg' \) 2>/dev/null | wc -l | tr -d ' ')
 echo "[sync-assets] Скопировано изображений: $count → $DST/"

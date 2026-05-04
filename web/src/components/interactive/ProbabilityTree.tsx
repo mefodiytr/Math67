@@ -10,8 +10,6 @@
  * В answer-режиме ученик вводит вероятности листьев (в процентах или дробях),
  * и проверяется, что они складываются в правильное значение целевого события.
  */
-import { useState } from "react";
-
 export interface ProbBranch {
   /** Метка ветви (например "О" для орла) */
   label: string;
@@ -77,7 +75,6 @@ export default function ProbabilityTree({
 
   function layout(b: ProbBranch[], level: number, parentX: number, parentY: number, parentPath: string[]): number {
     const x = (level + 1) * COL_W;
-    const yStart = leafIdx;
     const ys: number[] = [];
 
     for (const br of b) {

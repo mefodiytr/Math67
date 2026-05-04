@@ -6,11 +6,12 @@
   "description": "Felicia — Academy of Nine Moons. Interactive web app for the Math 6+ course.",
   "scripts": {
     "predev": "bash scripts/sync-assets.sh",
-    "dev": "astro dev --host",
-    "start": "astro dev",
+    "dev": "astro dev --host 0.0.0.0",
+    "start": "astro dev --host 0.0.0.0",
     "prebuild": "bash scripts/sync-assets.sh",
-    "build": "astro check && astro build",
-    "preview": "astro preview --host",
+    "build": "astro build",
+    "check": "astro check",
+    "preview": "astro preview --host 0.0.0.0",
     "astro": "astro",
     "deploy": "bash deploy/deploy.sh",
     "sync-assets": "bash scripts/sync-assets.sh"
@@ -31,6 +32,7 @@
     "typescript": "^5.7.2"
   },
   "devDependencies": {
+    "@types/node": "^20.17.10",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5"
   }
