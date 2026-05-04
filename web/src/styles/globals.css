@@ -1,9 +1,9 @@
+/* ─────────────────────────── KaTeX (must come first by CSS spec) ─────────────── */
+@import "katex/dist/katex.min.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* ─────────────────────────── KaTeX ─────────────────────────── */
-@import "katex/dist/katex.min.css";
 
 /* ─────────────────────────── шрифты ───────────────────────────
  * Локально не подключаем — берём системные. Лена откроет с Windows /
