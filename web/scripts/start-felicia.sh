@@ -39,9 +39,10 @@ if [[ "$MODE" == "dev" ]]; then
   echo "[felicia] dev-сервер на http://$HOST:$PORT/"
   exec pnpm exec astro dev --host "$HOST" --port "$PORT"
 else
-  # preview — production-like раздача из dist/
-  if [[ ! -d dist ]]; then
-    echo "[felicia] dist/ не найден, делаю pnpm build…"
+  # preview — всегда пересобираем dist/, чтобы изменения исходников были видны.
+  # (В preview-режиме astro раздаёт строго содержимое dist/, без HMR.)
+  if [[ "${SKIP_BUILD:-}" != "1" ]]; then
+    echo "[felicia] pnpm build…"
     pnpm exec astro build
   fi
   echo "[felicia] preview на http://$HOST:$PORT/"
